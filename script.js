@@ -1,3 +1,4 @@
+import words from "./words.js"
 // Global state
 let mouseDown = false
 document.body.onmousedown = () => {
@@ -56,7 +57,7 @@ function activateNode(node) {
 	if (!permanentlyActivatedNodes.includes(node)) {
 		activatedNodes.push(node)
 	}
-	validatedNodes = validateActivatedNodes(activatedNodes)
+	let validatedNodes = validateActivatedNodes(activatedNodes)
 	validatedNodes.forEach((activatedNode) => (activatedNode.className = "letter activated"))
 }
 
@@ -87,8 +88,8 @@ function setupListeners(nodes) {
 }
 
 function getCoordinates(node) {
-	x = parseInt(node.id.split(",")[1])
-	y = parseInt(node.id.split(",")[0])
+	const x = parseInt(node.id.split(",")[1])
+	const y = parseInt(node.id.split(",")[0])
 	return [y, x]
 }
 
@@ -99,10 +100,10 @@ function getWord(activatedNodes) {
 function validateActivatedNodes(activatedNodes) {
 	let resultArray = []
 	if (activatedNodes.length < 2) return activatedNodes
-	currX = getCoordinates(activatedNodes[0])[1]
-	currY = getCoordinates(activatedNodes[0])[0]
-	nextX = getCoordinates(activatedNodes[1])[1]
-	nextY = getCoordinates(activatedNodes[1])[0]
+	const currX = getCoordinates(activatedNodes[0])[1]
+	const currY = getCoordinates(activatedNodes[0])[0]
+	const nextX = getCoordinates(activatedNodes[1])[1]
+	const nextY = getCoordinates(activatedNodes[1])[0]
 
 	console.log(currX + 1, nextX)
 
