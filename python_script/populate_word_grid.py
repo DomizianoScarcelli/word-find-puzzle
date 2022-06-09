@@ -6,7 +6,7 @@ import re
 
 from numpy import empty
 
-
+#TODO: I think this problem could be solved using backtrack
 
 ROWS = 10
 COLS = 10
