@@ -9,31 +9,57 @@ document.body.onmouseup = () => {
 }
 
 let permanentlyActivatedNodes = []
+let wordList = []
 let puzzle = createWordGrid()
-let wordList = puzzle[1]
 let activatedNodes = []
 
 function createPuzzle() {
-	const grid = puzzle[0]
+	const grid = puzzle
 	renderWordGrid(grid)
 	const letters = document.querySelectorAll(".letter")
 	setupListeners(letters)
 }
 
 function createWordGrid() {
+	const rows = 10
+	const columns = 10
+	//Initialize and fill up the grid with ""
+	let grid = []
+	for (let i = 0; i < rows; i++) {
+		grid.push(new Array(columns).fill(""))
+	}
+	let spazioDisponibile = new Map()
+	for (let row = 0; row < rows; row++) {
+		spazioDisponibile.set(row, columns)
+	}
+	// while (wordList.length < 10) {
+	// 	const randomNumber = Math.floor(Math.random() * words.length)
+	// 	const word = words[randomNumber]
+	// 	console.log(word)
+	// 	if (!wordList.includes(word)) wordList.push(word)
+	// }
+	for (let _ of [1, 2, 3, 4, 5, 6, 7, 8]) {
+		let i = 0
+		if (spazioDisponibile.get(i) > 1) {
+			const randomLength = Math.floor(Math.random() * columns - 1)
+			const wordsOfThatLength = words[3]
+			const randomWordIndex = Math.floor(Math.random() * wordsOfThatLength.length)
+			const randomWord = wordsOfThatLength[randomWordIndex]
+
+			console.log(randomWord)
+		}
+	}
+	console.log(spazioDisponibile)
 	return [
-		[
-			["C", "A", "N", "E", "A", "Z", "A", "A", "A"],
-			["A", "A", "A", "A", "A", "A", "A", "A", "A"],
-			["A", "A", "A", "A", "A", "M", "A", "A", "A"],
-			["A", "A", "A", "A", "A", "P", "A", "A", "A"],
-			["A", "A", "A", "A", "A", "A", "A", "A", "A"],
-			["A", "A", "A", "A", "A", "A", "A", "A", "A"],
-			["A", "A", "A", "A", "B", "A", "A", "A", "A"],
-			["A", "A", "A", "A", "A", "A", "A", "A", "A"],
-			["A", "A", "A", "A", "A", "A", "A", "A", "A"],
-		],
-		["CANE", "ZAMPA"],
+		["", "", "", "", "", "", "", "", ""],
+		["A", "A", "A", "A", "A", "A", "A", "A", "A"],
+		["A", "A", "A", "A", "A", "M", "A", "A", "A"],
+		["A", "A", "A", "A", "A", "P", "A", "A", "A"],
+		["A", "A", "A", "A", "A", "A", "A", "A", "A"],
+		["A", "A", "A", "A", "A", "A", "A", "A", "A"],
+		["A", "A", "A", "A", "B", "A", "A", "A", "A"],
+		["A", "A", "A", "A", "A", "A", "A", "A", "A"],
+		["A", "A", "A", "A", "A", "A", "A", "A", "A"],
 	]
 }
 
