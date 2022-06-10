@@ -3,10 +3,7 @@ from pathlib import Path
 import json
 import random
 import re
-
-from numpy import empty
-
-#TODO: I think this problem could be solved using backtrack
+import numpy as np
 
 ROWS = 10
 COLS = 10
@@ -14,34 +11,11 @@ grid = [["" for _ in range(COLS)] for _ in range(ROWS)]
 empty_coordinates = {(x, y) for x in range(COLS) for y in range(ROWS)}
 occupied_coordinates = set()
 words_to_find = []
+old_grid = grid.copy()
 
 
 with open("/Users/dov/dovsync/Coding Projects/Crucipuzzle/word_occurrencies.json") as json_file:
     occurrencies = json.load(json_file)
-
-visualize_grid = [['', '', '', '', '', '', '', '', '', ''],
-                  ['', '', '', '', '', '', '', '', '', ''],
-                  ['', '', '', '', '', '', '', '', '', ''],
-                  ['a', 'u', 't', 'h', 'o', 'r', 'i', 'n', 'g', ''],
-                  ['', '', '', 'a', '', '', '', '', '', ''],
-                  ['', '', '', 't', '', '', '', '', '', ''],
-                  ['', '', '', 'e', '', '', '', '', '', ''],
-                  ['', '', '', '', '', '', '', '', '', ''],
-                  ['', '', '', '', '', '', '', '', '', ''],
-                  ['', '', '', '', '', '', '', '', '', '']]
-
-
-# grid = [['', '', '', '', '', '', '', '', '', ''],
-#         ['', '', '', '', '', '', '', '', '', ''],
-#         ['', '', '', '', '', '', '', '', '', ''],
-#         ['', '', '', 'r', '', '', '', '', '', ''],
-#         ['', '', '', 'a', '', '', '', '', '', ''],
-#         ['', '', '', 't', '', '', '', '', '', ''],
-#         ['', '', '', 'e', '', '', '', '', '', ''],
-#         ['', '', '', '', '', '', '', '', '', ''],
-#         ['', '', '', '', '', '', '', '', '', ''],
-#         ['', '', '', '', '', '', '', '', '', '']]
-
 
 
 # directions = ["RIGHT", "LEFT", "UP", "DOWN",
@@ -50,45 +24,60 @@ visualize_grid = [['', '', '', '', '', '', '', '', '', ''],
 directions = ["RIGHT", "LEFT", "UP", "DOWN"]
 
 
-def populate_grid():
+def populate_grid(grid):
+    old_grid = grid.copy()
+    print(f"Grid Checker: {grid == old_grid}")
     random_direction = random.choice(directions)
-    random_x, random_y = random.choice(list(empty_coordinates.difference(occupied_coordinates)))
+    random_x, random_y = random.choice(
+        list(empty_coordinates.difference(occupied_coordinates)))
     if len(empty_coordinates) - len(occupied_coordinates) <= 10:
-        return
+        print("Finito!")
+        return old_grid
+
     print(random_direction, random_x, random_y)
     if "RIGHT":
         max_word_length = COLS - random_x
         if not max_word_length >= 4:
-            return populate_grid()
-        word = pick_word(max_word_length, random_x, random_y, random_direction)
+            
+            return populate_grid(old_grid)
+
+        word = pick_word(max_word_length, random_x,
+                         random_y, random_direction, grid)
+        if word == "":
+            return populate_grid(old_grid)
         for i, letter in enumerate(word):
             grid[random_y][random_x+i] = letter
-        print(grid)
     elif "LEFT":
         max_word_length = random_x + 1
         if not max_word_length >= 4:
-            return populate_grid()
-        word = pick_word(max_word_length, random_x, random_y, random_direction)
+            
+            return populate_grid(old_grid)
+
+        word = pick_word(max_word_length, random_x,
+                         random_y, random_direction, grid)
         for i, letter in enumerate(word):
             grid[random_y][random_x-i] = letter
     elif "UP":
         max_word_length = ROWS - random_y
         if not max_word_length >= 4:
-            return populate_grid()
-        word = pick_word(max_word_length, random_x, random_y, random_direction)
+            
+            return populate_grid(old_grid)
+
+        word = pick_word(max_word_length, random_x,
+                         random_y, random_direction, grid)
         for i, letter in enumerate(word):
             grid[random_y-i][random_x] = letter
 
     elif "DOWN":
         max_word_length = random_y + 1
         if not max_word_length >= 4:
-            return populate_grid()
-        word = pick_word(max_word_length, random_x, random_y, random_direction)
+            
+            return populate_grid(old_grid)
+
+        word = pick_word(max_word_length, random_x,
+                         random_y, random_direction, grid)
         for i, letter in enumerate(word):
             grid[random_y+i][random_x] = letter
-
-    if len(empty_coordinates) - len(occupied_coordinates) > 10:
-        return populate_grid()
 
     elif "UP_RIGHT":
         pass
@@ -98,11 +87,14 @@ def populate_grid():
         pass
     elif "DOWN_LEFT":
         pass
+    print(np.matrix(grid))
+    if len(empty_coordinates) - len(occupied_coordinates) > 10:
+        return populate_grid(grid)
+    return grid
 
-    return
 
-
-def pick_word(max_word_length, x, y, direction):
+# TODO: too many words inside words_to_find
+def pick_word(max_word_length, x, y, direction, grid):
     word_list = []
     for length in range(4, max_word_length+1):
         word_list += occurrencies[str(length)]
@@ -115,22 +107,22 @@ def pick_word(max_word_length, x, y, direction):
     elif direction == "DOWN":
         word_path = {(x, y-1) for i in range(1, max_word_length)}
     print(f"Word path: {word_path}")
-    conflicts = {}
+    # conflicts = {}
     regex = ""
     for point in word_path:
         if point in occupied_coordinates:
             print(f"POINT {point}")
-            conflicts[point] = grid[point[1]][point[0]]
+            # conflicts[point] = grid[point[1]][point[0]]
             regex += grid[point[1]][point[0]]
         else:
             regex += "."
-    print(f"Conflicts: {conflicts}")
+    # print(f"Conflicts: {conflicts}")
     regex = re.compile(regex)
     print(f"Regex: {regex}")
     re_matching_words = list(filter(regex.match, word_list))
+    # print(f"Matching words: {re_matching_words}")
     if len(re_matching_words) == 0:
-        #TODO: backtrack
-        pass
+        return ""
     word = random.choice(re_matching_words)
     for point in word_path:
         occupied_coordinates.add(point)
@@ -138,4 +130,5 @@ def pick_word(max_word_length, x, y, direction):
     return word
 
 
-populate_grid()
+full_grid = populate_grid(grid)
+print(full_grid, words_to_find)
