@@ -41,9 +41,7 @@ def populate_grid(grid):
     word, x, y, direction = make_choice(max_word_length, random_x, random_y,
                                         random_direction, grid, possibilities)
     # time.sleep(0.3)
-    print(np.matrix(grid))
-    #print(f"Chosen word: {word}")
-    #print(f"Chosen word starting point: {x,y, direction}")
+    # print(np.matrix(grid))
     if direction == "RIGHT":
         for i, letter in enumerate(word):
             grid[y][x+i] = letter
@@ -88,7 +86,7 @@ def get_maximux_word_length(x, y, direction):
 def make_choice(length, random_x, random_y, random_direction, grid, possibilities):
     word = pick_word(length, random_x,
                      random_y, random_direction, grid)
-    if word == "" or word in examinated_words:
+    if word == "" :
         possibilities.remove((random_x, random_y, random_direction))
         if possibilities == []:
             backtrack()
@@ -108,8 +106,8 @@ def backtrack():
     if len(grid_versioning) > 1:
         grid_versioning.pop(-1)
     if len(words_to_find) > 0:
-        last_word_inserted = words_to_find.pop(-1)
-        examinated_words.add(last_word_inserted)  # TODO: not useful
+        words_to_find.pop(-1)
+    print("BACKTRACK!!")
     populate_grid(grid_versioning[-1])
 
 
@@ -118,13 +116,13 @@ def pick_word(max_word_length, x, y, direction, grid):
     for length in range(4, max_word_length+1):
         word_list += occurrencies[str(length)]
     if direction == "RIGHT":
-        word_path = {(x+i, y) for i in range(max_word_length)}
+        word_path = [(x+i, y) for i in range(max_word_length)]
     elif direction == "UP":
-        word_path = {(x, y-i) for i in range(max_word_length)}
+        word_path = [(x, y-i) for i in range(max_word_length)]
     elif direction == "LEFT":
-        word_path = {(x-i, y) for i in range(max_word_length)}
+        word_path = [(x-i, y) for i in range(max_word_length)]
     elif direction == "DOWN":
-        word_path = {(x, y+i) for i in range(max_word_length)}
+        word_path = [(x, y+i) for i in range(max_word_length)]
     regex = ""
     for point in word_path:
         if grid[point[1]][point[0]] != "":
