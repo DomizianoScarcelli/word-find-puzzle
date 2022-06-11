@@ -14,25 +14,18 @@ words_to_find = []
 examinated_words = set()
 
 
+# TODO: change it using Path module
 with open("/Users/dov/dovsync/Coding Projects/Crucipuzzle/word_occurrencies.json") as json_file:
     occurrencies = json.load(json_file)
 
 
-# directions = ["RIGHT", "LEFT", "UP", "DOWN",
-#               "UP_RIGHT", "UP_LEFT", "DOWN_RIGHT", "DOWN_LEFT"]
+directions = ["RIGHT", "LEFT", "UP", "DOWN",
+              "UP_RIGHT", "UP_LEFT", "DOWN_RIGHT", "DOWN_LEFT"]
 
-directions = ["RIGHT", "LEFT", "UP", "DOWN"]
-
-grid_versioning = [[row[:] for row in grid], [row[:] for row in grid]]
+grid_versioning = [[row[:] for row in grid]]
 
 
 def populate_grid(grid):
-    occupied_coordinates = [(x, y) for y in range(len(grid))
-                            for x in range(len(grid[y])) if grid[y][x] != ""]
-    if len(empty_coordinates) - len(occupied_coordinates) <= 10:
-        # print("Finito!")
-        return grid
-
     possibilities = [(x, y, direction) for x in range(COLS) for y in range(
         ROWS) for direction in directions if grid[y][x] == ""]
     random_x, random_y, random_direction = random.choice(possibilities)
@@ -54,15 +47,18 @@ def populate_grid(grid):
     elif direction == "DOWN":
         for i, letter in enumerate(word):
             grid[y+i][x] = letter
-
     elif direction == "UP_RIGHT":
-        pass
+        for i, letter in enumerate(word):
+            grid[y-i][x+i] = letter
     elif direction == "UP_LEFT":
-        pass
+        for i, letter in enumerate(word):
+            grid[y-i][x-i] = letter
     elif direction == "DOWN_RIGHT":
-        pass
+        for i, letter in enumerate(word):
+            grid[y+i][x+i] = letter
     elif direction == "DOWN_LEFT":
-        pass
+        for i, letter in enumerate(word):
+            grid[y+i][x-i] = letter
     # #print(np.matrix(grid))
     words_to_find.append(word)
     new_occupied_coordinates = [(x, y) for y in range(
@@ -81,12 +77,20 @@ def get_maximux_word_length(x, y, direction):
         return y + 1
     elif direction == "DOWN":
         return ROWS - y
+    elif direction == "UP_RIGHT":
+        return min(y+1, COLS-x)
+    elif direction == "UP_LEFT":
+        return min(y+1, x+1)
+    elif direction == "DOWN_RIGHT":
+        return min(ROWS-y, COLS-x)
+    elif direction == "DOWN_LEFT":
+        return min(ROWS-y, x+1)
 
 
 def make_choice(length, random_x, random_y, random_direction, grid, possibilities):
     word = pick_word(length, random_x,
                      random_y, random_direction, grid)
-    if word == "" :
+    if word == "":
         possibilities.remove((random_x, random_y, random_direction))
         if possibilities == []:
             backtrack()
@@ -123,6 +127,14 @@ def pick_word(max_word_length, x, y, direction, grid):
         word_path = [(x-i, y) for i in range(max_word_length)]
     elif direction == "DOWN":
         word_path = [(x, y+i) for i in range(max_word_length)]
+    elif direction == "UP_RIGHT":
+        word_path = [(x+i, y-i) for i in range(max_word_length)]
+    elif direction == "UP_LEFT":
+        word_path = [(x-i, y-i) for i in range(max_word_length)]
+    elif direction == "DOWN_RIGHT":
+        word_path = [(x+i, y+i) for i in range(max_word_length)]
+    elif direction == "DOWN_LEFT":
+        word_path = [(x-i, y+i) for i in range(max_word_length)]
     regex = ""
     for point in word_path:
         if grid[point[1]][point[0]] != "":
@@ -137,5 +149,6 @@ def pick_word(max_word_length, x, y, direction, grid):
     return word
 
 
+# for _ in range(100):
 full_grid = populate_grid(grid)
 print(full_grid, words_to_find)
