@@ -5,6 +5,9 @@ import re
 from turtle import back
 import numpy as np
 import time
+import timeit
+
+
 
 ROWS = 10
 COLS = 10
@@ -24,15 +27,17 @@ directions = ["RIGHT", "LEFT", "UP", "DOWN",
 
 grid_versioning = [[row[:] for row in grid]]
 
-
-def populate_grid(grid):
+def pick_random_values(grid):
     possibilities = [(x, y, direction) for x in range(COLS) for y in range(
         ROWS) for direction in directions if grid[y][x] == ""]
     random_x, random_y, random_direction = random.choice(possibilities)
     max_word_length = get_maximux_word_length(
         random_x, random_y, random_direction)
-    word, x, y, direction = make_choice(max_word_length, random_x, random_y,
+    return make_choice(max_word_length, random_x, random_y,
                                         random_direction, grid, possibilities)
+
+def populate_grid(grid):
+    word, x, y, direction = pick_random_values(grid)
     # time.sleep(0.3)
     # print(np.matrix(grid))
     if direction == "RIGHT":
@@ -59,7 +64,6 @@ def populate_grid(grid):
     elif direction == "DOWN_LEFT":
         for i, letter in enumerate(word):
             grid[y+i][x-i] = letter
-    # #print(np.matrix(grid))
     words_to_find.append(word)
     new_occupied_coordinates = [(x, y) for y in range(
         len(grid)) for x in range(len(grid[y])) if grid[y][x] != ""]
@@ -93,7 +97,7 @@ def make_choice(length, random_x, random_y, random_direction, grid, possibilitie
     if word == "":
         possibilities.remove((random_x, random_y, random_direction))
         if possibilities == []:
-            backtrack()
+            return backtrack()
         else:
             new_random_x, new_random_y, new_random_direction = random.choice(
                 possibilities)
@@ -111,8 +115,7 @@ def backtrack():
         grid_versioning.pop(-1)
     if len(words_to_find) > 0:
         words_to_find.pop(-1)
-    print("BACKTRACK!!")
-    populate_grid(grid_versioning[-1])
+    return pick_random_values(grid_versioning[-1])
 
 
 def pick_word(max_word_length, x, y, direction, grid):
@@ -148,7 +151,12 @@ def pick_word(max_word_length, x, y, direction, grid):
     word = random.choice(re_matching_words)
     return word
 
+start = timeit.default_timer()
 
-# for _ in range(100):
-full_grid = populate_grid(grid)
+full_grid = populate_grid([["" for _ in range(COLS)] for _ in range(ROWS)])
 print(full_grid, words_to_find)
+
+stop = timeit.default_timer()
+
+print('Time: ', stop - start)
+
