@@ -5,6 +5,7 @@ import re
 import numpy as np
 import time
 import timeit
+import sys
 
 
 ROWS = 10
@@ -12,9 +13,6 @@ COLS = 10
 grid = [["" for _ in range(COLS)] for _ in range(ROWS)]
 empty_coordinates = {(x, y) for x in range(COLS) for y in range(ROWS)}
 words_to_find = []
-examinated_words = set()
-counter = 0
-
 
 with open(Path.joinpath(Path(__file__).parent.parent, 'word_occurrencies.json')) as json_file:
     occurrencies = json.load(json_file)
@@ -39,8 +37,8 @@ def pick_random_values(grid):
 
 def populate_grid(grid):
     word, x, y, direction = pick_random_values(grid)
-    print(np.matrix(grid))
-    print(words_to_find)
+    #print(np.matrix(grid))
+    #print(words_to_find)
     if direction == "RIGHT":
         for i, letter in enumerate(word):
             grid[y][x+i] = letter
@@ -65,10 +63,9 @@ def populate_grid(grid):
     elif direction == "DOWN_LEFT":
         for i, letter in enumerate(word):
             grid[y+i][x-i] = letter
-    # words_to_find.append(word)
     new_occupied_coordinates = [(x, y) for y in range(
         len(grid)) for x in range(len(grid[y])) if grid[y][x] != ""]
-    FINAL_WORD_LENGTH = 8
+    FINAL_WORD_LENGTH = 5
     if len(empty_coordinates) - len(new_occupied_coordinates) > FINAL_WORD_LENGTH:
         populate_grid(grid)
     else:
@@ -79,8 +76,6 @@ def insert_last_word(grid):
     final_empty_spaces =  [(x, y) for x in range(COLS) for y in range(
         ROWS)if grid[y][x] == ""]
     final_word = random.choice(occurrencies[str(len(final_empty_spaces))])
-    print(final_empty_spaces)
-    print(final_word)
     for i in range(len(final_empty_spaces)):
         x, y = final_empty_spaces[i]
         grid[y][x] = final_word[i]
@@ -105,10 +100,8 @@ def get_maximux_word_length(x, y, direction):
 
 
 def make_choice(length, random_x, random_y, random_direction, grid, possibilities):
-    global counter
     word = pick_word(length, random_x,
                      random_y, random_direction, grid)
-    examinated_words.add(word)
     if word == "":
         possibilities.remove((random_x, random_y, random_direction))
         if possibilities == []:
@@ -123,9 +116,6 @@ def make_choice(length, random_x, random_y, random_direction, grid, possibilitie
     else:
         words_to_find.append(word)
         if grid != grid_versioning[-1]:
-            counter += 1
-            print(counter)
-            
             grid_versioning.append([row[:] for row in grid])           
         return (word, random_x, random_y, random_direction)
 
@@ -135,7 +125,7 @@ def backtrack():
         grid_versioning.pop(-1)
     if len(words_to_find) > 0:
         words_to_find.pop(-1)
-    print("BACKTRACKING!")
+    #print("BACKTRACKING!")
     return pick_random_values(grid_versioning[-1])
 
 
@@ -174,9 +164,19 @@ def pick_word(max_word_length, x, y, direction, grid):
 
 
 start = timeit.default_timer()
-full_grid = populate_grid([["" for _ in range(COLS)] for _ in range(ROWS)])
-print(full_grid, words_to_find)
+fails = 0
+NUMBER_OF_PUZZLES = 100
+for i in range(1, NUMBER_OF_PUZZLES + 1):
+    progress = f'[{"=" * round((i/10))}{" " * (round(NUMBER_OF_PUZZLES/10) - round((i/10)))}] {(round(i/NUMBER_OF_PUZZLES*100 ,3))}% \tTime elapsed: {round(timeit.default_timer() - start, 2)}s'
+    print(progress, end="\r")
+    try:
+        full_grid = populate_grid([["" for _ in range(COLS)] for _ in range(ROWS)])
+        words_to_find.clear()
+    except:
+        fails += 1
 
 stop = timeit.default_timer()
 
 print('Time: ', stop - start)
+print('Avg time: ', (stop - start)/1000)
+print(f'Fail probability: {(fails/1000)*100}%')
