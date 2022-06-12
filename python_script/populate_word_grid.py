@@ -2,11 +2,9 @@ from pathlib import Path
 import json
 import random
 import re
-from turtle import back
 import numpy as np
 import time
 import timeit
-
 
 
 ROWS = 10
@@ -15,17 +13,19 @@ grid = [["" for _ in range(COLS)] for _ in range(ROWS)]
 empty_coordinates = {(x, y) for x in range(COLS) for y in range(ROWS)}
 words_to_find = []
 examinated_words = set()
+counter = 0
 
 
-# TODO: change it using Path module
-with open("/Users/dov/dovsync/Coding Projects/Crucipuzzle/word_occurrencies.json") as json_file:
+with open(Path.joinpath(Path(__file__).parent.parent, 'word_occurrencies.json')) as json_file:
     occurrencies = json.load(json_file)
+
 
 
 directions = ["RIGHT", "LEFT", "UP", "DOWN",
               "UP_RIGHT", "UP_LEFT", "DOWN_RIGHT", "DOWN_LEFT"]
 
 grid_versioning = [[row[:] for row in grid]]
+
 
 def pick_random_values(grid):
     possibilities = [(x, y, direction) for x in range(COLS) for y in range(
@@ -34,12 +34,13 @@ def pick_random_values(grid):
     max_word_length = get_maximux_word_length(
         random_x, random_y, random_direction)
     return make_choice(max_word_length, random_x, random_y,
-                                        random_direction, grid, possibilities)
+                       random_direction, grid, possibilities)
+
 
 def populate_grid(grid):
     word, x, y, direction = pick_random_values(grid)
-    # time.sleep(0.3)
-    # print(np.matrix(grid))
+    print(np.matrix(grid))
+    print(words_to_find)
     if direction == "RIGHT":
         for i, letter in enumerate(word):
             grid[y][x+i] = letter
@@ -64,13 +65,25 @@ def populate_grid(grid):
     elif direction == "DOWN_LEFT":
         for i, letter in enumerate(word):
             grid[y+i][x-i] = letter
-    words_to_find.append(word)
+    # words_to_find.append(word)
     new_occupied_coordinates = [(x, y) for y in range(
         len(grid)) for x in range(len(grid[y])) if grid[y][x] != ""]
-    if len(empty_coordinates) - len(new_occupied_coordinates) > 10:
+    FINAL_WORD_LENGTH = 8
+    if len(empty_coordinates) - len(new_occupied_coordinates) > FINAL_WORD_LENGTH:
         populate_grid(grid)
+    else:
+        insert_last_word(grid)
     return grid
 
+def insert_last_word(grid):
+    final_empty_spaces =  [(x, y) for x in range(COLS) for y in range(
+        ROWS)if grid[y][x] == ""]
+    final_word = random.choice(occurrencies[str(len(final_empty_spaces))])
+    print(final_empty_spaces)
+    print(final_word)
+    for i in range(len(final_empty_spaces)):
+        x, y = final_empty_spaces[i]
+        grid[y][x] = final_word[i]
 
 def get_maximux_word_length(x, y, direction):
     if direction == "RIGHT":
@@ -92,8 +105,10 @@ def get_maximux_word_length(x, y, direction):
 
 
 def make_choice(length, random_x, random_y, random_direction, grid, possibilities):
+    global counter
     word = pick_word(length, random_x,
                      random_y, random_direction, grid)
+    examinated_words.add(word)
     if word == "":
         possibilities.remove((random_x, random_y, random_direction))
         if possibilities == []:
@@ -106,7 +121,12 @@ def make_choice(length, random_x, random_y, random_direction, grid, possibilitie
             return make_choice(new_max_word_length, new_random_x, new_random_y,
                                new_random_direction, grid, possibilities)
     else:
-        grid_versioning.append([row[:] for row in grid])
+        words_to_find.append(word)
+        if grid != grid_versioning[-1]:
+            counter += 1
+            print(counter)
+            
+            grid_versioning.append([row[:] for row in grid])           
         return (word, random_x, random_y, random_direction)
 
 
@@ -115,6 +135,7 @@ def backtrack():
         grid_versioning.pop(-1)
     if len(words_to_find) > 0:
         words_to_find.pop(-1)
+    print("BACKTRACKING!")
     return pick_random_values(grid_versioning[-1])
 
 
@@ -145,18 +166,17 @@ def pick_word(max_word_length, x, y, direction, grid):
         else:
             regex += "."
     regex = re.compile(regex)
-    re_matching_words = list(filter(regex.match, word_list))
+    re_matching_words = set(filter(regex.match, word_list))
     if len(re_matching_words) == 0:
         return ""
-    word = random.choice(re_matching_words)
+    word = random.choice(list(re_matching_words))
     return word
 
-start = timeit.default_timer()
 
+start = timeit.default_timer()
 full_grid = populate_grid([["" for _ in range(COLS)] for _ in range(ROWS)])
 print(full_grid, words_to_find)
 
 stop = timeit.default_timer()
 
 print('Time: ', stop - start)
-
