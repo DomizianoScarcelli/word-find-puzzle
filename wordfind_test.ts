@@ -1,80 +1,38 @@
-function WordFind(rows: number, cols: number) {
-	this.rows = rows
-	this.cols = cols
-	this.grid = Array(9).fill(Array(9).fill(""))
+let result = {
+	grid: [
+		["t", "b", "e", "s", "t", "e", "l", "l", "e", "n"],
+		["l", "b", "i", "m", "n", "s", "i", "", "", ""],
+		["i", "p", "c", "h", "a", "i", "r", "m", "a", "n"],
+		["u", "h", "a", "t", "e", "m", "p", "l", "e", "s"],
+		["q", "p", "l", "y", "", "e", "a", "s", "e", "e"],
+		["", "a", "c", "h", "i", "d", "i", "o", "t", "s"],
+		["f", "h", "r", "r", "g", "b", "h", "", "", "p"],
+		["u", "a", "u", "i", "d", "i", "a", "p", "e", "r"],
+		["s", "r", "e", "d", "n", "e", "l", "b", "", "i"],
+		["s", "e", "l", "p", "i", "r", "t", "t", "y", "t"],
+	],
+	insertedWords: [
+		"quilt",
+		"temples",
+		"hoes",
+		"rhythms",
+		"diaper",
+		"blenders",
+		"chairman",
+		"demise",
+		"lacie",
+		"iraq",
+		"hare",
+		"idiots",
+		"april",
+		"triples",
+		"fuss",
+		"bestellen",
+		"spins",
+		"esprit",
+		"phpbb",
+		"cruel",
+		"baby",
+		"gilt",
+	],
 }
-
-WordFind.prototype.getEmptyCoordinates = function (): number[][] {
-	let coordinates: number[][] = []
-	for (let y = 0; y < this.rows; y++) {
-		for (let x = 0; x < this.cols; x++) {
-			if (this.grid[y][x] === "") coordinates.push([x, y])
-		}
-	}
-	return coordinates
-}
-
-export default WordFind
-
-function init() {
-	const wordFind = new WordFind(10, 10)
-	console.log(wordFind.getEmptyCoordinates())
-}
-
-init()
-
-// const GridVersioning = {
-// 	gridVersions: { previousGrids: [], insertedWords: [] },
-// 	/**
-// 	 * Removes and returns the last version of the grid
-// 	 * @returns the removed elements from the list
-// 	 */
-// 	pop: (): string[][] => {
-// 		return GridVersioning.gridVersions.previousGrids.pop()
-// 	},
-// 	add: (grid: string[][]): void => {
-// 		GridVersioning.gridVersions.previousGrids.push(grid)
-// 	},
-// }
-
-// const Wordfind = {
-// 	grid: Array(9).fill(Array(9).fill("")),
-// 	ROWS: 10,
-// 	COLS: 10,
-// 	wordsToFind: [],
-// 	DIRECTIONS: ["RIGHT", "LEFT", "UP", "DOWN", "UP_RIGHT", "UP_LEFT", "DOWN_RIGHT", "DOWN_LEFT"],
-// 	getEmptyCoordinates: (grid: string[][]): number[][] => {
-// 		let coordinates: number[][] = []
-// 		for (let y = 0; y < Wordfind.ROWS; y++) {
-// 			for (let x = 0; x < Wordfind.COLS; x++) {
-// 				if (grid[y][x] === "") coordinates.push([x, y])
-// 			}
-// 		}
-// 		return coordinates
-// 	},
-// 	getPossibilities: (): number | string[][] => {
-// 		let possibilities = []
-// 		for (let coordinates of Wordfind.getEmptyCoordinates(Wordfind.grid)) {
-// 			for (let direction of Wordfind.DIRECTIONS) {
-// 				possibilities.push([coordinates[0], coordinates[1], direction])
-// 			}
-// 		}
-// 		return possibilities
-// 	},
-// }
-
-// interface Choice {}
-
-// const CreatePuzzle = {
-// 	pickRandomValues: (grid: string[][]): number | string[][] => {
-// 		let possibilities = Wordfind.getPossibilities()
-// 		return possibilities
-// 	},
-// }
-
-// const init = () => {
-// 	GridVersioning.add(Wordfind.grid)
-// 	console.log(CreatePuzzle.pickRandomValues(Wordfind.grid))
-// }
-
-// init()

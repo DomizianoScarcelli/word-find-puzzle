@@ -1,12 +1,12 @@
 # TODO
 
--   [ ] Pick random values
--   [ ] Populate grid with words
+-   [x] Pick random values
+-   [x] Populate grid with words
 -   [ ] Insert last word
--   [ ] Get maximum word length for a certain position and direction
--   [ ] Utility functions for directions
--   [ ] Recursive choice making and backtracking
--   [ ] Pick the word that match inside a certain position
+-   [x] Get maximum word length for a certain position and direction
+-   [x] Utility functions for directions
+-   [x] Recursive choice making and backtracking
+-   [x] Pick the word that match inside a certain position
 
 ## User end
 

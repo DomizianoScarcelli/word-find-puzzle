@@ -132,10 +132,10 @@ def pick_word(max_word_length, x, y, direction, grid):
         word_list += occurrencies[str(length)]
     if direction == "RIGHT":
         word_path = [(x+i, y) for i in range(max_word_length)]
-    elif direction == "UP":
-        word_path = [(x, y-i) for i in range(max_word_length)]
     elif direction == "LEFT":
         word_path = [(x-i, y) for i in range(max_word_length)]
+    elif direction == "UP":
+        word_path = [(x, y-i) for i in range(max_word_length)]
     elif direction == "DOWN":
         word_path = [(x, y+i) for i in range(max_word_length)]
     elif direction == "UP_RIGHT":
