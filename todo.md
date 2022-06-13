@@ -16,3 +16,7 @@
 -   [ ] Add word to set of words
 -   [ ] Modify the word to be found
 -   [ ] Find a set of word instead of only a word
+
+## Documentation
+
+-   [ ] Document the library
