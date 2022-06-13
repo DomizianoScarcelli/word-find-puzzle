@@ -205,7 +205,7 @@ var WordFind = (() => {
 		}
 	}
 
-	let fillGrid = (): { grid: string[][]; insertedWords: string[] } => {
+	let fillGrid = (): { grid: string[][]; insertedWords: string[]; finalWord: string } => {
 		const grid: string[][] = gridVersioning.info[gridVersioning.info.length - 1].grid
 		let { word, coordinates }: { word: string; coordinates: Coordinates } = pickRandomValues()
 		console.log(word)
@@ -254,19 +254,28 @@ var WordFind = (() => {
 			default:
 				throw Error(`Direction ${direction} doesn't exist`)
 		}
-		let occupiedCoordinates = []
-		for (let y = 0; y < rows; y++) {
-			for (let x = 0; x < cols; x++) {
-				if (grid[y][x] !== "") occupiedCoordinates.push([x, y])
-			}
+		if (getEmptyCoordinates().length > finalWordLenght) return fillGrid()
+		else {
+			let finalWord = insertLastWord()
+
+			return { grid: grid, insertedWords: gridVersioning.info[gridVersioning.info.length - 1].insertedWords, finalWord: finalWord }
 		}
-		console.log("Occupied coordinates : " + occupiedCoordinates.length)
-		console.log("Differenza totali - occupate: " + (rows * cols - occupiedCoordinates.length))
-		if (rows * cols - occupiedCoordinates.length > finalWordLenght) return fillGrid()
-		else return { grid: grid, insertedWords: gridVersioning.info[gridVersioning.info.length - 1].insertedWords }
 	}
 
-	let insertLastWord = (): void => {}
+	let insertLastWord = (): string => {
+		let grid: string[][] = gridVersioning.info[gridVersioning.info.length - 1].grid
+		const emptyCoordinates: number[][] = getEmptyCoordinates()
+		const finalWordArray: string[] = wordOccurrencies[`${emptyCoordinates.length}`]
+		const finalWord: string = finalWordArray[Math.floor(Math.random() * finalWordArray.length)]
+		console.log(emptyCoordinates)
+		console.log(finalWord)
+		for (let i = 0; i < finalWord.length; i++) {
+			const x: number = emptyCoordinates[i][0]
+			const y: number = emptyCoordinates[i][1]
+			grid[y][x] = finalWord[i]
+		}
+		return finalWord
+	}
 
 	return { fillGrid }
 })()

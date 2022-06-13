@@ -7,7 +7,8 @@
 		"outDir": "out",
 		"removeComments": true,
 		"preserveConstEnums": true,
-		"sourceMap": true
+		"sourceMap": true,
+		"watch": true
 	},
 	"include": ["src/*"]
 }
