@@ -1,0 +1,8 @@
+{
+  "name": "Crucipuzzle",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/DomizianoScarcelli/word-find-puzzle",
+  "author": "Domiziano Scarcelli <scarcelli.domiziano@gmail.com>",
+  "license": "MIT"
+}

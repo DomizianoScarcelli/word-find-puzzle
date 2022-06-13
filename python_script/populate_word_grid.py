@@ -2,10 +2,7 @@ from pathlib import Path
 import json
 import random
 import re
-import numpy as np
-import time
 import timeit
-import sys
 
 
 ROWS = 10
