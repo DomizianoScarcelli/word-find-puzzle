@@ -1,3 +1,5 @@
+import * as wordOccurrencies from "../word_occurrencies.json"
+
 interface GridInfo {
 	info: [
 		{
@@ -45,7 +47,7 @@ var WordFind = (() => {
 	}
 
 	let getEmptyCoordinates = (): number[][] => {
-		let grid: string[][] = gridVersioning.info[gridVersioning.info.length - 1].grid
+		const grid: string[][] = gridVersioning.info[gridVersioning.info.length - 1].grid
 		let coordinates: number[][] = []
 		for (let y = 0; y < rows; y++) {
 			for (let x = 0; x < cols; x++) {
@@ -56,7 +58,7 @@ var WordFind = (() => {
 	}
 
 	let getPossibilities = (): Coordinates[] => {
-		let possibilities = []
+		const possibilities = []
 		for (let coordinates of getEmptyCoordinates()) {
 			for (let direction in Directions) {
 				possibilities.push([coordinates[0], coordinates[1], direction])
@@ -65,19 +67,117 @@ var WordFind = (() => {
 		return possibilities
 	}
 
-	let pickRandomValues = (): (number | Coordinates)[] => {
-		let possibilities = getPossibilities()
-		let random: number = Math.round(Math.random() * possibilities.length)
-		let coordinates: Coordinates = possibilities[random]
-		let maxWordLength: number = getMaximumWordLength(coordinates)
+	let pickRandomValues = (): [maxWordLength: number, coordintes: Coordinates] => {
+		const possibilities = getPossibilities()
+		const random: number = Math.round(Math.random() * possibilities.length)
+		const coordinates: Coordinates = possibilities[random]
+		const maxWordLength: number = getMaximumWordLength(coordinates)
 		return [maxWordLength, coordinates]
 	}
 
 	let getMaximumWordLength = (coordinates: Coordinates): number => {
-		return 10
+		const x: number = coordinates[0]
+		const y: number = coordinates[1]
+		const direction: Directions = coordinates[2]
+		switch (direction) {
+			case Directions.RIGHT:
+				return cols - x
+			case Directions.LEFT:
+				return x + 1
+			case Directions.UP:
+				return y + 1
+			case Directions.DOWN:
+				return rows - y
+			case Directions.UP_RIGHT:
+				return Math.min(y + 1, cols - x)
+			case Directions.UP_LEFT:
+				return Math.min(y + 1, x + 1)
+			case Directions.DOWN_RIGHT:
+				return Math.min(rows - y, cols - y)
+			case Directions.DOWN_LEFT:
+				return Math.min(rows - y, x + 1)
+			default:
+				throw Error(`Direction ${direction} doesn't exist`)
+		}
 	}
 
-	return { rows, cols, getEmptyCoordinates, getPossibilities, pickRandomValues }
+	let getWordPath = (maxLength: number, coordinates: Coordinates): [x: number, y: number][] => {
+		let wordPath: [x: number, y: number][] = []
+		const x: number = coordinates[0]
+		const y: number = coordinates[1]
+		const direction: Directions = coordinates[2]
+		switch (direction) {
+			case Directions.RIGHT:
+				for (let i = 0; i < maxLength; i++) {
+					wordPath.push([x + i, y])
+				}
+				return wordPath
+			case Directions.LEFT:
+				for (let i = 0; i < maxLength; i++) {
+					wordPath.push([x - i, y])
+				}
+				return wordPath
+			case Directions.UP:
+				for (let i = 0; i < maxLength; i++) {
+					wordPath.push([x, y - i])
+				}
+				return wordPath
+			case Directions.DOWN:
+				for (let i = 0; i < maxLength; i++) {
+					wordPath.push([x, y + i])
+				}
+				return wordPath
+			case Directions.UP_RIGHT:
+				for (let i = 0; i < maxLength; i++) {
+					wordPath.push([x + i, y - i])
+				}
+				return wordPath
+			case Directions.UP_LEFT:
+				for (let i = 0; i < maxLength; i++) {
+					wordPath.push([x - i, y - i])
+				}
+				return wordPath
+			case Directions.DOWN_RIGHT:
+				for (let i = 0; i < maxLength; i++) {
+					wordPath.push([x + i, y + i])
+				}
+				return wordPath
+			case Directions.DOWN_LEFT:
+				for (let i = 0; i < maxLength; i++) {
+					wordPath.push([x - i, y + i])
+				}
+				return wordPath
+			default:
+				throw Error(`Direction ${direction} doesn't exist`)
+		}
+	}
+
+	let pickWord = (maxLength: number, coordinates: Coordinates): string => {
+		const grid: string[][] = gridVersioning.info[gridVersioning.info.length - 1].grid
+		let wordList: string[] = []
+		for (let length = 4; length <= maxLength; length++) {
+			wordList = wordList.concat(wordOccurrencies[`${length}`])
+		}
+		const wordPath: number[][] = getWordPath(maxLength, coordinates)
+		let regex: string = ""
+		for (let point of wordPath) {
+			let x: number = point[0]
+			let y: number = point[1]
+			if (grid[y][x] !== "") regex += grid[y][x]
+			else regex += "."
+		}
+		const compiledRegex: RegExp = new RegExp(regex)
+		const matchingWords: string[] = wordList.filter((word) => compiledRegex.test(word))
+		if (matchingWords.length === 0) return ""
+		const random = Math.round(Math.random() * matchingWords.length)
+		const word = matchingWords[random]
+		return word
+	}
+
+	return { rows, cols, getEmptyCoordinates, getPossibilities, pickRandomValues, pickWord }
 })()
 
-console.log(WordFind.pickRandomValues())
+const values = WordFind.pickRandomValues()
+const maxWordLength = values[0]
+const coordinates = values[1]
+console.log(WordFind.pickWord(maxWordLength, coordinates))
