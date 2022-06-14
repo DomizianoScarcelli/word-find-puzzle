@@ -2,7 +2,7 @@
 
 -   [x] Pick random values
 -   [x] Populate grid with words
--   [ ] Insert last word
+-   [x] Insert last word
 -   [x] Get maximum word length for a certain position and direction
 -   [x] Utility functions for directions
 -   [x] Recursive choice making and backtracking

@@ -1,0 +1,26 @@
+{
+	"name": "crucipuzzle",
+	"version": "1.0.0",
+	"description": "",
+	"main": "src/wordfind.ts",
+	"directories": {
+		"test": "test"
+	},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "ts-node src/wordfind.ts"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/DomizianoScarcelli/word-find-puzzle.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/DomizianoScarcelli/word-find-puzzle/issues"
+	},
+	"homepage": "https://github.com/DomizianoScarcelli/word-find-puzzle#readme",
+	"devDependencies": {
+		"jest": "^28.1.1"
+	}
+}

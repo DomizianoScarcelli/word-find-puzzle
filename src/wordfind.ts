@@ -1,4 +1,4 @@
-import * as wordOccurrencies from "../word_occurrencies.json"
+import * as wordOccurrencies from "../data/word_occurrencies.json"
 
 interface GridInfo {
 	info: [

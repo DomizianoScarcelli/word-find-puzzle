@@ -1,6 +1,6 @@
 from pathlib import Path
 import json
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).parent.parent
 
 # FILE_NAME = "word_list.txt"
 # absolute_path = Path.joinpath(Path(__file__).parent, FILE_NAME)
@@ -16,7 +16,7 @@ ROOT = Path(__file__).parent
 
 def filter_and_parse_words():
     FILE_NAME = "word_list.txt"
-    absolute_path = Path.joinpath(ROOT, FILE_NAME)
+    absolute_path = Path.joinpath(ROOT, "data", FILE_NAME)
     with open(absolute_path) as f:
         words = f.read().replace("\t", "").splitlines()
         for word in words.copy():
@@ -33,7 +33,7 @@ def filter_and_parse_words():
 
 def filter_and_parse_words_dictionary():
     FILE_NAME = "word_list.txt"
-    path = Path.joinpath(ROOT, FILE_NAME)
+    path = Path.joinpath(ROOT, 'data', FILE_NAME)
     with open(path) as f:
         words = f.read().replace("\t", "").splitlines()
         for word in words.copy():
