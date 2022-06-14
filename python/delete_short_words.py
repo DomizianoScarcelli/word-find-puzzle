@@ -15,7 +15,7 @@ ROOT = Path(__file__).parent.parent
 #     f.write(words_string)
 
 def filter_and_parse_words():
-    FILE_NAME = "word_list.txt"
+    FILE_NAME = "words.txt"
     absolute_path = Path.joinpath(ROOT, "data", FILE_NAME)
     with open(absolute_path) as f:
         words = f.read().replace("\t", "").splitlines()
@@ -32,7 +32,7 @@ def filter_and_parse_words():
     return 
 
 def filter_and_parse_words_dictionary():
-    FILE_NAME = "word_list.txt"
+    FILE_NAME = "words.txt"
     path = Path.joinpath(ROOT, 'data', FILE_NAME)
     with open(path) as f:
         words = f.read().replace("\t", "").splitlines()
