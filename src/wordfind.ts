@@ -4,12 +4,13 @@ interface GridInfo {
 	info: [
 		{
 			grid: string[][]
-			insertedWords: string[]
+			insertedWords: { word: string; wordPath: Point[] }[]
 		}
 	]
 	push: Function
 	pop: Function
 	getGrid: Function
+	getLatestVersion: Function
 	getInsertedWords: Function
 	getLength: Function
 }
@@ -17,6 +18,11 @@ interface Coordinates {
 	x: number
 	y: number
 	direction: Directions
+}
+
+interface Point {
+	x: number
+	y: number
 }
 
 enum Directions {
@@ -55,17 +61,36 @@ var WordFind = (() => {
 				insertedWords: [],
 			},
 		],
-		push: (gridInfo: GridInfo["info"][0]): void => {
-			gridVersioning.info.push(gridInfo)
+		push: (grid: string[][], word: string, wordPath: Point[]): void => {
+			const info: GridInfo["info"][0] = {
+				grid: grid,
+				insertedWords: [
+					...gridVersioning.getLatestVersion().insertedWords,
+					{
+						word: word,
+						wordPath: wordPath,
+					},
+				],
+			}
+			gridVersioning.info.push(info)
 		},
 		pop: (): GridInfo["info"][0] => {
-			return gridVersioning.info[-1]
+			return gridVersioning.getGrid()
 		},
 		getGrid: (): string[][] => {
-			return gridVersioning.info[gridVersioning.getLength() - 1].grid
+			return gridVersioning.getLatestVersion().grid
+		},
+		getLatestVersion: (): GridInfo["info"][0] => {
+			return gridVersioning.info[gridVersioning.getLength() - 1]
 		},
 		getInsertedWords: (): string[] => {
-			return gridVersioning.info[gridVersioning.getLength() - 1].insertedWords
+			if (gridVersioning.getLength() === 0) return []
+			let words = []
+			for (let { word } of gridVersioning.getLatestVersion().insertedWords) {
+				words.push(word)
+			}
+
+			return words
 		},
 		getLength: (): number => {
 			return gridVersioning.info.length
@@ -125,48 +150,48 @@ var WordFind = (() => {
 		}
 	}
 
-	let getWordPath = (maxLength: number, coordinates: Coordinates): [x: number, y: number][] => {
-		let wordPath: [x: number, y: number][] = []
+	let getCompatibleWordPath = (maxLength: number, coordinates: Coordinates): Point[] => {
+		let wordPath: Point[] = []
 		const { x, y, direction }: { x: number; y: number; direction: Directions } = coordinates
 		switch (direction) {
 			case Directions.RIGHT:
 				for (let i = 0; i < maxLength; i++) {
-					wordPath.push([x + i, y])
+					wordPath.push({ x: x + i, y: y })
 				}
 				return wordPath
 			case Directions.LEFT:
 				for (let i = 0; i < maxLength; i++) {
-					wordPath.push([x - i, y])
+					wordPath.push({ x: x - i, y: y })
 				}
 				return wordPath
 			case Directions.UP:
 				for (let i = 0; i < maxLength; i++) {
-					wordPath.push([x, y - i])
+					wordPath.push({ x: x, y: y - i })
 				}
 				return wordPath
 			case Directions.DOWN:
 				for (let i = 0; i < maxLength; i++) {
-					wordPath.push([x, y + i])
+					wordPath.push({ x: x, y: y + i })
 				}
 				return wordPath
 			case Directions.UP_RIGHT:
 				for (let i = 0; i < maxLength; i++) {
-					wordPath.push([x + i, y - i])
+					wordPath.push({ x: x + i, y: y - i })
 				}
 				return wordPath
 			case Directions.UP_LEFT:
 				for (let i = 0; i < maxLength; i++) {
-					wordPath.push([x - i, y - i])
+					wordPath.push({ x: x - i, y: y - i })
 				}
 				return wordPath
 			case Directions.DOWN_RIGHT:
 				for (let i = 0; i < maxLength; i++) {
-					wordPath.push([x + i, y + i])
+					wordPath.push({ x: x + i, y: y + i })
 				}
 				return wordPath
 			case Directions.DOWN_LEFT:
 				for (let i = 0; i < maxLength; i++) {
-					wordPath.push([x - i, y + i])
+					wordPath.push({ x: x - i, y: y + i })
 				}
 				return wordPath
 			default:
@@ -174,30 +199,28 @@ var WordFind = (() => {
 		}
 	}
 
-	let pickWord = (maxLength: number, coordinates: Coordinates): string => {
+	let pickWord = (maxLength: number, coordinates: Coordinates): { word: string; wordPath: Point[] } => {
 		const grid: string[][] = gridVersioning.getGrid()
 		let wordList: string[] = []
 		for (let length = 4; length <= maxLength; length++) {
 			wordList = wordList.concat(wordOccurrencies[`${length}`])
 		}
-		const wordPath: number[][] = getWordPath(maxLength, coordinates)
+		const wordPath: Point[] = getCompatibleWordPath(maxLength, coordinates)
 		let regex: string = ""
-		for (let point of wordPath) {
-			let x: number = point[0]
-			let y: number = point[1]
+		for (let { x, y } of wordPath) {
 			if (grid[y][x] !== "") regex += grid[y][x]
 			else regex += "."
 		}
 		const compiledRegex: RegExp = new RegExp(regex)
 		const matchingWords: string[] = wordList.filter((word) => compiledRegex.test(word))
-		if (matchingWords.length === 0) return ""
+		if (matchingWords.length === 0) return { word: "", wordPath: [] }
 		const random = Math.floor(Math.random() * matchingWords.length)
 		const word = matchingWords[random]
-		return word
+		return { word: word, wordPath: wordPath }
 	}
 
 	let startRecursiveWordPicking = (maxLength: number, coordinates: Coordinates, possibilities: Coordinates[]): { word: string; coordinates: Coordinates } => {
-		const word = pickWord(maxLength, coordinates)
+		const { word, wordPath } = pickWord(maxLength, coordinates)
 		if (word === "") {
 			possibilities = possibilities.filter((coordinate) => coordinate !== coordinates)
 			if (possibilities.length === 0) {
@@ -209,10 +232,7 @@ var WordFind = (() => {
 			const newMaxWordLength: number = getMaximumWordLength(newCoordinates)
 			return startRecursiveWordPicking(newMaxWordLength, newCoordinates, possibilities)
 		} else {
-			gridVersioning.push({
-				grid: [...gridVersioning.getGrid()],
-				insertedWords: [...gridVersioning.getInsertedWords(), word],
-			})
+			gridVersioning.push(gridVersioning.getGrid(), word, wordPath)
 			return { word, coordinates }
 		}
 	}
@@ -289,11 +309,22 @@ var WordFind = (() => {
 		return finalWord
 	}
 
-	let getSolution = () => {}
+	let getWordPath = (wordToFind: string): Point[] => {
+		for (let { word, wordPath } of gridVersioning.getLatestVersion().insertedWords) {
+			if (wordToFind === word) return wordPath
+		}
+		return [{ x: 0, y: 0 }]
+	}
 
-	return { fillGrid }
+	let wordHint = (wordToFind: string): Point => {
+		return getWordPath(wordToFind)[0]
+	}
+
+	return { fillGrid, getWordPath, gridVersioning }
 })()
 
 const values = WordFind.fillGrid()
-
+const WORDS = WordFind.gridVersioning.getInsertedWords()
+const wordPath = WordFind.getWordPath(WORDS[1])
 console.log(values)
+console.log(wordPath)
