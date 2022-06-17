@@ -114,7 +114,7 @@ var WordFind = (() => {
 		let coordinates: Point[] = []
 		for (let y = 0; y < rows; y++) {
 			for (let x = 0; x < cols; x++) {
-				if (pendingGrid[y][x] == "") coordinates.push({ x: x, y: y })
+				if (pendingGrid[y][x] === "") coordinates.push({ x: x, y: y })
 			}
 		}
 		return coordinates
@@ -125,7 +125,7 @@ var WordFind = (() => {
 		const possibilities = []
 		for (let { x, y } of getEmptyCoordinates()) {
 			for (let direction in Directions) {
-				const coordinates: Coordinates = { x: x, y: y, direction: Directions[direction] }
+				const coordinates: Coordinates = { x: x, y: y, direction: Directions[direction as keyof typeof Directions] }
 				possibilities.push(coordinates)
 			}
 		}
@@ -217,7 +217,7 @@ var WordFind = (() => {
 	let pickWord = (maxLength: number, coordinates: Coordinates): { word: string; wordPath: Point[] } => {
 		let wordList: string[] = []
 		for (let length = 4; length <= maxLength; length++) {
-			wordList = wordList.concat(wordOccurrencies[`${length}`])
+			wordList = wordList.concat(wordOccurrencies[`${length}` as keyof typeof wordOccurrencies])
 		}
 		const wordPath: Point[] = getCompatibleWordPath(maxLength, coordinates)
 		let regex: string = ""
@@ -311,7 +311,7 @@ var WordFind = (() => {
 	let insertLastWord = (): string => {
 		//TODO: if doesn't exist a final word, backtrack
 		const emptyCoordinates: Point[] = getEmptyCoordinates()
-		const finalWordArray: string[] = wordOccurrencies[`${emptyCoordinates.length}`]
+		const finalWordArray: string[] = wordOccurrencies[`${emptyCoordinates.length}` as keyof typeof wordOccurrencies]
 		const finalWord: string = finalWordArray[Math.floor(Math.random() * finalWordArray.length)]
 		// console.log(emptyCoordinates)
 		// console.log(finalWord)
@@ -326,15 +326,25 @@ var WordFind = (() => {
 		for (let { word, wordPath } of gridVersioning.getLatestVersion().insertedWords) {
 			if (wordToFind === word) return wordPath
 		}
-		return [{ x: 0, y: 0 }]
+		return [{ x: -1, y: -1 }]
 	}
 
 	let wordHint = (wordToFind: string): Point => {
 		return getWordPath(wordToFind)[0]
 	}
 
-	return { fillGrid, getWordPath, gridVersioning }
+	let clear = (): void => {
+		gridVersioning.info = [
+			{
+				grid: emptyMatrix(),
+				insertedWords: [],
+			},
+		]
+	}
+
+	return { fillGrid, getWordPath, clear, wordHint }
 })()
 
-const values = WordFind.fillGrid()
-console.log(values)
+export default WordFind
+
+console.log(WordFind.fillGrid())
