@@ -11,7 +11,8 @@ grid = [["" for _ in range(COLS)] for _ in range(ROWS)]
 empty_coordinates = {(x, y) for x in range(COLS) for y in range(ROWS)}
 words_to_find = []
 
-with open(Path.joinpath(Path(__file__).parent.parent, 'word_occurrencies.json')) as json_file:
+
+with open(Path.joinpath(Path(__file__).parent.parent, 'example_word_occurrencies.json')) as json_file:
     occurrencies = json.load(json_file)
 
 

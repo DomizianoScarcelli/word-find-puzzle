@@ -32,7 +32,7 @@ def filter_and_parse_words():
     return 
 
 def filter_and_parse_words_dictionary():
-    FILE_NAME = "words.txt"
+    FILE_NAME = "example_words.txt"
     path = Path.joinpath(ROOT, 'data', FILE_NAME)
     with open(path) as f:
         words = f.read().replace("\t", "").splitlines()
@@ -44,7 +44,7 @@ def filter_and_parse_words_dictionary():
     return occurencies
 
 def save_dictionary_as_json(dictionary):
-    with open("word_occurrencies.json", "x") as f:
+    with open("example_word_occurrencies.json", "x") as f:
         json.dump(dictionary, f)
     return 
 
