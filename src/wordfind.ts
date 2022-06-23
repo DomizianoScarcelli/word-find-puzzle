@@ -37,16 +37,6 @@ enum Directions {
 }
 
 var WordFind = (() => {
-	function pprint(matrix) {
-		matrix.forEach((row) => {
-			let word = ""
-			row.forEach((element) => {
-				word += element
-			})
-			console.log(word)
-		})
-	}
-
 	let rows: number = 8,
 		cols: number = 8
 
@@ -59,8 +49,6 @@ var WordFind = (() => {
 	}
 
 	let compareCoordinates = (c1: Coordinates, c2: Coordinates): boolean => {
-		// if (c1.x === c2.x && c1.y === c2.y && c1.direction === c2.direction)
-		// 	console.log(`Comparando ${c1.x}, ${c1.y}, ${c1.direction} e ${c2.x}, ${c2.y}, ${c2.direction}: ${c1.x === c2.x && c1.y === c2.y && c1.direction === c2.direction}`)
 		return c1.x === c2.x && c1.y === c2.y && c1.direction === c2.direction
 	}
 
@@ -252,10 +240,10 @@ var WordFind = (() => {
 		return { word: word, wordPath: wordPath }
 	}
 
-	//TODO: there's a BIG bug in here
+	// TODO: there's a BIG bug in here
 	let recursiveWordPicking = (maxLength: number, coordinates: Coordinates, possibilities: Coordinates[]): { word: string; coordinates: Coordinates } => {
 		const { word, wordPath } = pickWord(maxLength, coordinates)
-		if (word === "") {
+		if (word !== "") {
 			possibilities = possibilities.filter((coordinate) => !compareCoordinates(coordinate, coordinates))
 			for (let newCoordinates of possibilities) {
 				const newMaxWordLength: number = getMaximumWordLength(newCoordinates)
@@ -265,7 +253,6 @@ var WordFind = (() => {
 					gridVersioning.push(pendingGrid, newWord, newWordPath, newCoordinates)
 					return { word: newWord, coordinates: newCoordinates }
 				}
-				// possibilities = possibilities.filter((coordinate) => !compareCoordinates(coordinate, newCoordinates))
 			}
 			console.log("Backtracking")
 			pendingGrid = gridVersioning.pop()
@@ -277,31 +264,6 @@ var WordFind = (() => {
 			return { word, coordinates }
 		}
 	}
-
-	// let addWordToVisitedCoordinatesInfo = (word: string, coordinate: Coordinates): VisitedCoordinatesInfo[] => {
-	// 	for (let visitedCoordinate of visitedCoordinates) {
-	// 		if (compareCoordinates(visitedCoordinate.coordinate, coordinate)) {
-	// 			visitedCoordinate.examinatedWords.push(word)
-	// 			return [...visitedCoordinates]
-	// 		}
-	// 	}
-	// 	visitedCoordinates.push({ coordinate: coordinate, examinatedWords: [word] })
-	// 	return [...visitedCoordinates]
-	// }
-
-	// let getExaminatedWords = (visitedCoordinates: VisitedCoordinatesInfo[], coordinates: Coordinates): string[] => {
-	// 	for (let visitedCoordinate of visitedCoordinates) {
-	// 		if (compareCoordinates(visitedCoordinate.coordinate, coordinates)) return [...visitedCoordinate.examinatedWords]
-	// 	}
-	// 	return []
-	// }
-
-	// let areCoordinatesPresent = (coordinates: Coordinates): boolean => {
-	// 	for (let visitedCoordinate of gridVersioning.getLatestVersion().visitedCoordinates) {
-	// 		if (compareCoordinates(visitedCoordinate.coordinate, coordinates)) return true
-	// 	}
-	// 	return false
-	// }
 
 	let addWordToGrid = (grid: string[][], word: string, coordinates: Coordinates): string[][] => {
 		let { x, y, direction } = coordinates
@@ -357,7 +319,6 @@ var WordFind = (() => {
 		while (getEmptyCoordinates().length > finalWordLength) {
 			const { maxWordLength, coordinates: firstCoordinates, possibilites } = pickRandomValues()
 			recursiveWordPicking(maxWordLength, firstCoordinates, possibilites)
-			pprint(pendingGrid)
 		}
 
 		return { grid: pendingGrid, insertedWords: gridVersioning.getInsertedWords(), finalWord: insertLastWord() }
@@ -385,15 +346,6 @@ var WordFind = (() => {
 	let wordHint = (wordToFind: string): Point => {
 		return getWordPath(wordToFind)[0]
 	}
-
-	// let clear = (): void => {
-	// 	gridVersioning.info = [
-	// 		{
-	// 			grid: emptyMatrix(),
-	// 			insertedWords: [],
-	// 		},
-	// 	]
-	// }
 
 	return { fillGrid, getWordPath, wordHint }
 })()
