@@ -40,9 +40,7 @@ var WordFind = (() => {
 	let rows: number = 8,
 		cols: number = 8
 
-	let finalWordLength: number = 8
-
-	let examinatedWords: Map<string, string[]> = new Map()
+	let finalWordLength: number = 6
 
 	let copyMatrix = (matrix: string[][]): string[][] => {
 		return JSON.parse(JSON.stringify(matrix))
@@ -67,52 +65,6 @@ var WordFind = (() => {
 	let grid = emptyMatrix()
 	let insertedWords: string[] = []
 
-	// let gridVersioning: GridInfo = {
-	// 	info: [
-	// 		{
-	// 			grid: emptyMatrix(),
-	// 			insertedWords: [],
-	// 		},
-	// 	],
-	// 	push: (grid: string[][], word: string, wordPath: Point[], regex: string): void => {
-	// 		const info: GridInfo["info"][0] = {
-	// 			grid: copyMatrix(grid),
-	// 			insertedWords: [
-	// 				...gridVersioning.getLatestVersion().insertedWords,
-	// 				{
-	// 					word: word,
-	// 					wordPath: wordPath,
-	// 				},
-	// 			],
-	// 		}
-	// 		gridVersioning.info.push(info)
-	// 	},
-	// 	pop: (): GridInfo["info"][0] => {
-	// 		if (gridVersioning.getLength() > 1) gridVersioning.info.pop()
-	// 		return gridVersioning.getGrid()
-	// 	},
-	// 	getGrid: (): string[][] => {
-	// 		return copyMatrix(gridVersioning.getLatestVersion().grid)
-	// 	},
-	// 	getLatestVersion: (): GridInfo["info"][0] => {
-	// 		return gridVersioning.info[gridVersioning.getLength() - 1]
-	// 	},
-	// 	getInsertedWords: (): string[] => {
-	// 		if (gridVersioning.getLength() === 0) return []
-	// 		let words = []
-	// 		for (let { word } of gridVersioning.getLatestVersion().insertedWords) {
-	// 			words.push(word)
-	// 		}
-
-	// 		return words
-	// 	},
-	// 	getLength: (): number => {
-	// 		return gridVersioning.info.length
-	// 	},
-	// }
-
-	// let grid = gridVersioning.getGrid()
-
 	let getEmptyCoordinates = (): Point[] => {
 		let coordinates: Point[] = []
 		for (let y = 0; y < rows; y++) {
@@ -132,19 +84,6 @@ var WordFind = (() => {
 			}
 		}
 		return possibilities
-	}
-
-	let pickRandomValues = (): { maxWordLength: number; coordinates: Coordinates; possibilites: Coordinates[] } => {
-		const possibilities = getPossibilities()
-		if (possibilities.length === 0) {
-			grid = gridVersioning.pop()
-			return pickRandomValues()
-		} else {
-			const random: number = Math.floor(Math.random() * possibilities.length)
-			const coordinates: Coordinates = possibilities[random]
-			const maxWordLength: number = getMaximumWordLength(coordinates)
-			return { maxWordLength: maxWordLength, coordinates: coordinates, possibilites: possibilities }
-		}
 	}
 
 	let getMaximumWordLength = (coordinates: Coordinates): number => {
@@ -220,7 +159,7 @@ var WordFind = (() => {
 		}
 	}
 
-	let pickWord = (maxLength: number, coordinates: Coordinates): { word: string; wordPath: Point[] } => {
+	let pickWord = (maxLength: number, coordinates: Coordinates): { words: string[]; wordPath: Point[] } => {
 		let wordList: string[] = []
 		for (let length = 4; length <= maxLength; length++) {
 			wordList = wordList.concat(wordOccurrencies[`${length}` as keyof typeof wordOccurrencies])
@@ -229,43 +168,14 @@ var WordFind = (() => {
 		let regex: string = ""
 		for (let { x, y } of wordPath) {
 			if (grid[y][x] !== "") regex += grid[y][x]
-			else regex += "."
+			else regex += ".?"
 		}
 		const compiledRegex: RegExp = new RegExp(regex)
-		let regexExaminatedWord = []
-		if (examinatedWords.get(regex) !== undefined) regexExaminatedWord = examinatedWords.get(regex)
-		const matchingWords: string[] = wordList.filter((word) => compiledRegex.test(word) && !regexExaminatedWord.includes(word) && !gridVersioning.getInsertedWords().includes(word))
-
-		if (matchingWords.length === 0) return { word: "", wordPath: [] }
-		const random = Math.floor(Math.random() * matchingWords.length)
-		const word = matchingWords[random]
-		examinatedWords.set(regex, [...regexExaminatedWord, word])
-		return { word: word, wordPath: wordPath }
-	}
-
-	// TODO: there's a BIG bug in here
-	let recursiveWordPicking = (maxLength: number, coordinates: Coordinates, possibilities: Coordinates[]): { word: string; coordinates: Coordinates } => {
-		const { word, wordPath } = pickWord(maxLength, coordinates)
-		if (word !== "") {
-			possibilities = possibilities.filter((coordinate) => !compareCoordinates(coordinate, coordinates))
-			for (let newCoordinates of possibilities) {
-				const newMaxWordLength: number = getMaximumWordLength(newCoordinates)
-				const { word: newWord, wordPath: newWordPath } = pickWord(newMaxWordLength, newCoordinates)
-				if (newWord !== "") {
-					grid = addWordToGrid(grid, newWord, newCoordinates)
-					gridVersioning.push(grid, newWord, newWordPath, newCoordinates)
-					return { word: newWord, coordinates: newCoordinates }
-				}
-			}
-			console.log("Backtracking")
-			grid = gridVersioning.pop()
-			const { maxWordLength: newMaxWordLength, coordinates: newCoordinates, possibilites: backtrackPossibilities } = pickRandomValues()
-			return recursiveWordPicking(newMaxWordLength, newCoordinates, backtrackPossibilities)
-		} else {
-			grid = addWordToGrid(grid, word, coordinates)
-			gridVersioning.push(grid, word, wordPath, coordinates)
-			return { word, coordinates }
-		}
+		const matchingWords: string[] = wordList.filter((word) => compiledRegex.test(word) && !insertedWords.includes(word))
+		if (matchingWords.length === 0) return { words: [], wordPath: [] }
+		// const random = Math.floor(Math.random() * matchingWords.length)
+		// const word = matchingWords[random]
+		return { words: matchingWords, wordPath: wordPath }
 	}
 
 	let addWordToGrid = (grid: string[][], word: string, coordinates: Coordinates): string[][] => {
@@ -318,39 +228,78 @@ var WordFind = (() => {
 		return grid
 	}
 
-	let fillGrid = (): { grid: string[][]; insertedWords: string[]; finalWord: string } => {
-		while (getEmptyCoordinates().length > finalWordLength) {
-			const { maxWordLength, coordinates: firstCoordinates, possibilites } = pickRandomValues()
-			recursiveWordPicking(maxWordLength, firstCoordinates, possibilites)
+	let shuffle = (array: any[]): any[] => {
+		var j, x, i
+		for (i = array.length - 1; i > 0; i--) {
+			j = Math.round(Math.random() * (i + 1))
+			x = array[i]
+			array[i] = array[j]
+			array[j] = x
 		}
-
-		return { grid: grid, insertedWords: gridVersioning.getInsertedWords(), finalWord: insertLastWord() }
+		return array
 	}
 
-	let insertLastWord = (): string => {
-		//TODO: if doesn't exist a final word, backtrack
-		const emptyCoordinates: Point[] = getEmptyCoordinates()
-		const finalWordArray: string[] = wordOccurrencies[`${emptyCoordinates.length}` as keyof typeof wordOccurrencies]
-		const finalWord: string = finalWordArray[Math.floor(Math.random() * finalWordArray.length)]
-		for (let i = 0; i < finalWord.length; i++) {
-			const { x, y } = emptyCoordinates[i]
-			grid[y][x] = finalWord[i]
+	let fillGrid = (): { grid: string[][]; insertedWords: string[] } | boolean => {
+		// console.log("Chiamata")
+		const backtrackMatrixCopy = copyMatrix(grid)
+		const backtrackInsertedWordCopy = [...insertedWords]
+		const possibilites = shuffle(getPossibilities())
+		if (getEmptyCoordinates().length <= finalWordLength) return true
+		for (let possibility of possibilites) {
+			if (possibility != undefined) {
+				const maxWordLength = getMaximumWordLength(possibility)
+				const { words } = pickWord(maxWordLength, possibility)
+				if (words !== []) {
+					for (let word of words) {
+						grid = addWordToGrid(grid, word, possibility)
+						insertedWords.push(word)
+						// pprint(grid)
+						if (fillGrid()) return { grid: grid, insertedWords: insertedWords }
+						grid = copyMatrix(backtrackMatrixCopy)
+						insertedWords = [...backtrackInsertedWordCopy]
+					}
+				}
+			}
 		}
-		return finalWord
+		return false
 	}
 
-	let getWordPath = (wordToFind: string): Point[] => {
-		for (let { word, wordPath } of gridVersioning.getLatestVersion().insertedWords) {
-			if (wordToFind === word) return wordPath
-		}
-		return [{ x: -1, y: -1 }]
+	let pprint = (grid) => {
+		console.log("------------")
+		grid.forEach((row) => {
+			let string = ""
+			row.forEach((element) => {
+				string += element
+			})
+			console.log(string)
+		})
+		console.log("------------")
 	}
 
-	let wordHint = (wordToFind: string): Point => {
-		return getWordPath(wordToFind)[0]
-	}
+	// let insertLastWord = (): string => {
+	// 	//TODO: if doesn't exist a final word, backtrack
+	// 	const emptyCoordinates: Point[] = getEmptyCoordinates()
+	// 	const finalWordArray: string[] = wordOccurrencies[`${emptyCoordinates.length}` as keyof typeof wordOccurrencies]
+	// 	const finalWord: string = finalWordArray[Math.floor(Math.random() * finalWordArray.length)]
+	// 	for (let i = 0; i < finalWord.length; i++) {
+	// 		const { x, y } = emptyCoordinates[i]
+	// 		grid[y][x] = finalWord[i]
+	// 	}
+	// 	return finalWord
+	// }
 
-	return { fillGrid, getWordPath, wordHint }
+	// let getWordPath = (wordToFind: string): Point[] => {
+	// 	for (let { word, wordPath } of gridVersioning.getLatestVersion().insertedWords) {
+	// 		if (wordToFind === word) return wordPath
+	// 	}
+	// 	return [{ x: -1, y: -1 }]
+	// }
+
+	// let wordHint = (wordToFind: string): Point => {
+	// 	return getWordPath(wordToFind)[0]
+	// }
+
+	return { fillGrid }
 })()
 
 export default WordFind
