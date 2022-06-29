@@ -23,19 +23,15 @@ enum Directions {
 }
 
 var WordFind = (() => {
-	let rows: number = 10,
-		cols: number = 10
+	let rows: number = 8,
+		cols: number = 8
 
-	let finalWordLength: number = 6
+	let finalWordLength: number = 8
 
 	let choices: Map<String, String[]> = new Map()
 
 	let copyMatrix = (matrix: string[][]): string[][] => {
 		return JSON.parse(JSON.stringify(matrix))
-	}
-
-	let compareCoordinates = (c1: Coordinates, c2: Coordinates): boolean => {
-		return c1.x === c2.x && c1.y === c2.y && c1.direction === c2.direction
 	}
 
 	let emptyMatrix = (): string[][] => {
@@ -131,23 +127,18 @@ var WordFind = (() => {
 		}
 	}
 
-	//TODO: big bug as always
 	let pickWord = (maxLength: number, coordinates: Coordinates): { words: string[]; wordPath: Point[] } => {
 		let wordList: string[] = []
 		for (let length = 4; length <= maxLength; length++) wordList = wordList.concat(wordOccurrencies[`${length}` as keyof typeof wordOccurrencies])
 		const wordPath = getCompatibleWordPath(maxLength, coordinates)
 		let regex: string = ""
-		for (let { x, y } of wordPath) {
-			if (grid[y][x] !== "") regex += grid[y][x]
-			else regex += ".?"
-		}
-		// const choice = { coordinates: coordinates, regex: regex }
-		// const visitedWords = choices.has(JSON.stringify(choice)) ? choices.get(JSON.stringify(choice)) : []
-		const visitedWords = []
+		for (let { x, y } of wordPath) regex += grid[y][x] !== "" ? grid[y][x] : "."
+		const choice = { coordinates: coordinates, regex: regex }
+		const visitedWords = choices.has(JSON.stringify(choice)) ? choices.get(JSON.stringify(choice)) : []
 		const matchingWords: string[] = wordList.filter((word) => new RegExp(regex).test(word) && !insertedWords.includes(word) && !visitedWords.includes(word))
-		// choices.set(JSON.stringify(choice), [...visitedWords, ...matchingWords])
+		choices.set(JSON.stringify(choice), [...visitedWords, ...matchingWords])
 		if (matchingWords.length === 0) return { words: [], wordPath: [] }
-		return { words: shuffle(matchingWords).filter((word) => word != undefined), wordPath: wordPath }
+		return { words: shuffle(matchingWords), wordPath: wordPath }
 	}
 
 	let addWordToGrid = (grid: string[][], word: string, coordinates: Coordinates): string[][] => {
@@ -192,42 +183,28 @@ var WordFind = (() => {
 			array[i] = array[j]
 			array[j] = x
 		}
-		return array
+		return array.filter((elem) => elem != undefined)
 	}
 
 	let fillGrid = (): { grid: string[][]; insertedWords: string[] } | boolean => {
 		const backtrackMatrixCopy = copyMatrix(grid)
-		const backtrackInsertedWordCopy = [...insertedWords]
-		const possibilites = shuffle(getPossibilities()).filter((possibility) => possibility != undefined)
+		const possibilites = shuffle(getPossibilities())
 		if (getEmptyCoordinates().length <= finalWordLength) return true
 		for (let possibility of possibilites) {
 			const maxWordLength = getMaximumWordLength(possibility)
 			const { words } = pickWord(maxWordLength, possibility)
-			if (words.length !== 0) {
-				for (let word of words) {
-					console.log(`Inserted: ${insertedWords}`)
-					grid = addWordToGrid(grid, word, possibility)
-					insertedWords.push(word)
 
-					if (fillGrid()) return { grid: grid, insertedWords: insertedWords }
-					grid = copyMatrix(backtrackMatrixCopy)
-					insertedWords.pop()
-				}
+			for (let word of words) {
+				console.log(`Inserted: ${insertedWords}`)
+				console.log(choices.size)
+				grid = addWordToGrid(grid, word, possibility)
+				insertedWords.push(word)
+				if (fillGrid()) return { grid: grid, insertedWords: insertedWords }
+				grid = copyMatrix(backtrackMatrixCopy)
+				insertedWords.pop()
 			}
 		}
 		return false
-	}
-
-	let pprint = (grid) => {
-		console.log("------------")
-		grid.forEach((row) => {
-			let string = ""
-			row.forEach((element) => {
-				string += element
-			})
-			console.log(string)
-		})
-		console.log("------------")
 	}
 
 	// let insertLastWord = (): string => {
