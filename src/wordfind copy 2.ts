@@ -1,19 +1,5 @@
-import * as wordOccurrencies from "../data/example_word_occurrencies.json"
+import * as wordOccurrencies from "../data/word_occurrencies.json"
 
-interface GridInfo {
-	info: [
-		{
-			grid: string[][]
-			insertedWords: { word: string; wordPath: Point[] }[]
-		}
-	]
-	push: Function
-	pop: Function
-	getGrid: Function
-	getLatestVersion: Function
-	getInsertedWords: Function
-	getLength: Function
-}
 interface Coordinates {
 	x: number
 	y: number
@@ -37,8 +23,8 @@ enum Directions {
 }
 
 var WordFind = (() => {
-	let rows: number = 8,
-		cols: number = 8
+	let rows: number = 10,
+		cols: number = 10
 
 	let finalWordLength: number = 6
 
@@ -117,65 +103,49 @@ var WordFind = (() => {
 		const { x, y, direction }: { x: number; y: number; direction: Directions } = coordinates
 		switch (direction) {
 			case Directions.RIGHT:
-				for (let i = 0; i < maxLength; i++) {
-					wordPath.push({ x: x + i, y: y })
-				}
+				for (let i = 0; i < maxLength; i++) wordPath.push({ x: x + i, y: y })
 				return wordPath
 			case Directions.LEFT:
-				for (let i = 0; i < maxLength; i++) {
-					wordPath.push({ x: x - i, y: y })
-				}
+				for (let i = 0; i < maxLength; i++) wordPath.push({ x: x - i, y: y })
 				return wordPath
 			case Directions.UP:
-				for (let i = 0; i < maxLength; i++) {
-					wordPath.push({ x: x, y: y - i })
-				}
+				for (let i = 0; i < maxLength; i++) wordPath.push({ x: x, y: y - i })
 				return wordPath
 			case Directions.DOWN:
-				for (let i = 0; i < maxLength; i++) {
-					wordPath.push({ x: x, y: y + i })
-				}
+				for (let i = 0; i < maxLength; i++) wordPath.push({ x: x, y: y + i })
 				return wordPath
 			case Directions.UP_RIGHT:
-				for (let i = 0; i < maxLength; i++) {
-					wordPath.push({ x: x + i, y: y - i })
-				}
+				for (let i = 0; i < maxLength; i++) wordPath.push({ x: x + i, y: y - i })
 				return wordPath
 			case Directions.UP_LEFT:
-				for (let i = 0; i < maxLength; i++) {
-					wordPath.push({ x: x - i, y: y - i })
-				}
+				for (let i = 0; i < maxLength; i++) wordPath.push({ x: x - i, y: y - i })
 				return wordPath
 			case Directions.DOWN_RIGHT:
-				for (let i = 0; i < maxLength; i++) {
-					wordPath.push({ x: x + i, y: y + i })
-				}
+				for (let i = 0; i < maxLength; i++) wordPath.push({ x: x + i, y: y + i })
 				return wordPath
 			case Directions.DOWN_LEFT:
-				for (let i = 0; i < maxLength; i++) {
-					wordPath.push({ x: x - i, y: y + i })
-				}
+				for (let i = 0; i < maxLength; i++) wordPath.push({ x: x - i, y: y + i })
 				return wordPath
 			default:
 				throw Error(`Direction ${direction} doesn't exist`)
 		}
 	}
 
+	//TODO: big bug as always
 	let pickWord = (maxLength: number, coordinates: Coordinates): { words: string[]; wordPath: Point[] } => {
 		let wordList: string[] = []
-		for (let length = 4; length <= maxLength; length++) {
-			wordList = wordList.concat(wordOccurrencies[`${length}` as keyof typeof wordOccurrencies])
-		}
+		for (let length = 4; length <= maxLength; length++) wordList = wordList.concat(wordOccurrencies[`${length}` as keyof typeof wordOccurrencies])
 		const wordPath = getCompatibleWordPath(maxLength, coordinates)
 		let regex: string = ""
 		for (let { x, y } of wordPath) {
 			if (grid[y][x] !== "") regex += grid[y][x]
 			else regex += ".?"
 		}
-		let visitedWords = []
-		if (choices.has(JSON.stringify(coordinates))) visitedWords = choices.get(JSON.stringify(coordinates))
+		// const choice = { coordinates: coordinates, regex: regex }
+		// const visitedWords = choices.has(JSON.stringify(choice)) ? choices.get(JSON.stringify(choice)) : []
+		const visitedWords = []
 		const matchingWords: string[] = wordList.filter((word) => new RegExp(regex).test(word) && !insertedWords.includes(word) && !visitedWords.includes(word))
-		choices.set(JSON.stringify(coordinates), [...visitedWords, ...matchingWords])
+		// choices.set(JSON.stringify(choice), [...visitedWords, ...matchingWords])
 		if (matchingWords.length === 0) return { words: [], wordPath: [] }
 		return { words: shuffle(matchingWords).filter((word) => word != undefined), wordPath: wordPath }
 	}
@@ -185,44 +155,28 @@ var WordFind = (() => {
 
 		switch (direction) {
 			case Directions.RIGHT:
-				for (let i = 0; i < word.length; i++) {
-					grid[y][x + i] = word[i]
-				}
+				for (let i = 0; i < word.length; i++) grid[y][x + i] = word[i]
 				break
 			case Directions.LEFT:
-				for (let i = 0; i < word.length; i++) {
-					grid[y][x - i] = word[i]
-				}
+				for (let i = 0; i < word.length; i++) grid[y][x - i] = word[i]
 				break
 			case Directions.UP:
-				for (let i = 0; i < word.length; i++) {
-					grid[y - i][x] = word[i]
-				}
+				for (let i = 0; i < word.length; i++) grid[y - i][x] = word[i]
 				break
 			case Directions.DOWN:
-				for (let i = 0; i < word.length; i++) {
-					grid[y + i][x] = word[i]
-				}
+				for (let i = 0; i < word.length; i++) grid[y + i][x] = word[i]
 				break
 			case Directions.UP_RIGHT:
-				for (let i = 0; i < word.length; i++) {
-					grid[y - i][x + i] = word[i]
-				}
+				for (let i = 0; i < word.length; i++) grid[y - i][x + i] = word[i]
 				break
 			case Directions.UP_LEFT:
-				for (let i = 0; i < word.length; i++) {
-					grid[y - i][x - i] = word[i]
-				}
+				for (let i = 0; i < word.length; i++) grid[y - i][x - i] = word[i]
 				break
 			case Directions.DOWN_RIGHT:
-				for (let i = 0; i < word.length; i++) {
-					grid[y + i][x + i] = word[i]
-				}
+				for (let i = 0; i < word.length; i++) grid[y + i][x + i] = word[i]
 				break
 			case Directions.DOWN_LEFT:
-				for (let i = 0; i < word.length; i++) {
-					grid[y + i][x - i] = word[i]
-				}
+				for (let i = 0; i < word.length; i++) grid[y + i][x - i] = word[i]
 				break
 			default:
 				throw Error(`Direction ${direction} doesn't exist`)
@@ -240,25 +194,24 @@ var WordFind = (() => {
 		}
 		return array
 	}
-	//TODO: bug: the program cycles for already visited words
+
 	let fillGrid = (): { grid: string[][]; insertedWords: string[] } | boolean => {
 		const backtrackMatrixCopy = copyMatrix(grid)
 		const backtrackInsertedWordCopy = [...insertedWords]
-		const possibilites = shuffle(getPossibilities())
+		const possibilites = shuffle(getPossibilities()).filter((possibility) => possibility != undefined)
 		if (getEmptyCoordinates().length <= finalWordLength) return true
 		for (let possibility of possibilites) {
-			if (possibility != undefined) {
-				const maxWordLength = getMaximumWordLength(possibility)
-				const { words } = pickWord(maxWordLength, possibility)
-				if (words.length !== 0) {
+			const maxWordLength = getMaximumWordLength(possibility)
+			const { words } = pickWord(maxWordLength, possibility)
+			if (words.length !== 0) {
+				for (let word of words) {
 					console.log(`Inserted: ${insertedWords}`)
-					for (let word of words) {
-						grid = addWordToGrid(grid, word, possibility)
-						insertedWords.push(word)
-						if (fillGrid()) return { grid: grid, insertedWords: insertedWords }
-						grid = copyMatrix(backtrackMatrixCopy)
-						insertedWords = [...backtrackInsertedWordCopy]
-					}
+					grid = addWordToGrid(grid, word, possibility)
+					insertedWords.push(word)
+
+					if (fillGrid()) return { grid: grid, insertedWords: insertedWords }
+					grid = copyMatrix(backtrackMatrixCopy)
+					insertedWords.pop()
 				}
 			}
 		}
