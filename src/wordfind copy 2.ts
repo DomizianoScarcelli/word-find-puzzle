@@ -42,6 +42,8 @@ var WordFind = (() => {
 
 	let finalWordLength: number = 6
 
+	let choices: Map<String, String[]> = new Map()
+
 	let copyMatrix = (matrix: string[][]): string[][] => {
 		return JSON.parse(JSON.stringify(matrix))
 	}
@@ -170,12 +172,12 @@ var WordFind = (() => {
 			if (grid[y][x] !== "") regex += grid[y][x]
 			else regex += ".?"
 		}
-		const compiledRegex: RegExp = new RegExp(regex)
-		const matchingWords: string[] = wordList.filter((word) => compiledRegex.test(word) && !insertedWords.includes(word))
+		let visitedWords = []
+		if (choices.has(JSON.stringify(coordinates))) visitedWords = choices.get(JSON.stringify(coordinates))
+		const matchingWords: string[] = wordList.filter((word) => new RegExp(regex).test(word) && !insertedWords.includes(word) && !visitedWords.includes(word))
+		choices.set(JSON.stringify(coordinates), [...visitedWords, ...matchingWords])
 		if (matchingWords.length === 0) return { words: [], wordPath: [] }
-		// const random = Math.floor(Math.random() * matchingWords.length)
-		// const word = matchingWords[random]
-		return { words: matchingWords, wordPath: wordPath }
+		return { words: shuffle(matchingWords).filter((word) => word != undefined), wordPath: wordPath }
 	}
 
 	let addWordToGrid = (grid: string[][], word: string, coordinates: Coordinates): string[][] => {
@@ -238,9 +240,8 @@ var WordFind = (() => {
 		}
 		return array
 	}
-
+	//TODO: bug: the program cycles for already visited words
 	let fillGrid = (): { grid: string[][]; insertedWords: string[] } | boolean => {
-		// console.log("Chiamata")
 		const backtrackMatrixCopy = copyMatrix(grid)
 		const backtrackInsertedWordCopy = [...insertedWords]
 		const possibilites = shuffle(getPossibilities())
@@ -249,11 +250,11 @@ var WordFind = (() => {
 			if (possibility != undefined) {
 				const maxWordLength = getMaximumWordLength(possibility)
 				const { words } = pickWord(maxWordLength, possibility)
-				if (words !== []) {
+				if (words.length !== 0) {
+					console.log(`Inserted: ${insertedWords}`)
 					for (let word of words) {
 						grid = addWordToGrid(grid, word, possibility)
 						insertedWords.push(word)
-						// pprint(grid)
 						if (fillGrid()) return { grid: grid, insertedWords: insertedWords }
 						grid = copyMatrix(backtrackMatrixCopy)
 						insertedWords = [...backtrackInsertedWordCopy]
