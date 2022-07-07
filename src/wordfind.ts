@@ -1,4 +1,4 @@
-import * as wordOccurrencies from "../data/example_word_occurrencies.json"
+import * as wordOccurrencies from "../data/word_occurrencies.json"
 
 interface Coordinates {
 	x: number
@@ -133,9 +133,7 @@ var WordFind = (() => {
 		const wordPath = getCompatibleWordPath(maxLength, coordinates)
 		let regex: string = ""
 		for (let { x, y } of wordPath) regex += grid[y][x] !== "" ? grid[y][x] : "."
-		if (!choices.has(JSON.stringify(coordinates))) {
-			choices.set(JSON.stringify(coordinates), new Map())
-		}
+		if (!choices.has(JSON.stringify(coordinates))) choices.set(JSON.stringify(coordinates), new Map())
 		let wordRegex = choices.get(JSON.stringify(coordinates))
 		const visitedWords = wordRegex.has(regex) ? wordRegex.get(regex) : []
 		const matchingWords: string[] = wordList.filter((word) => new RegExp(regex).test(word) && !insertedWords.includes(word) && !visitedWords.includes(word))
@@ -192,7 +190,7 @@ var WordFind = (() => {
 	let fillGrid = (): boolean => {
 		const backtrackMatrixCopy = copyMatrix(grid)
 		const possibilites = shuffle(getPossibilities())
-		if (getEmptyCoordinates().length <= finalWordLength) return true
+		if (getEmptyCoordinates().length <= finalWordLength && getEmptyCoordinates().length >= 4) return true
 		for (let possibility of possibilites) {
 			const maxWordLength = getMaximumWordLength(possibility)
 			const { words } = pickWord(maxWordLength, possibility)
