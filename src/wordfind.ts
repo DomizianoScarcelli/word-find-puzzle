@@ -64,54 +64,53 @@ var WordFind = (() => {
 		return grid
 	}
 
-	let grid = emptyMatrix()
 	let insertedWords: string[] = []
 
-	// let gridVersioning: GridInfo = {
-	// 	info: [
-	// 		{
-	// 			grid: emptyMatrix(),
-	// 			insertedWords: [],
-	// 		},
-	// 	],
-	// 	push: (grid: string[][], word: string, wordPath: Point[], regex: string): void => {
-	// 		const info: GridInfo["info"][0] = {
-	// 			grid: copyMatrix(grid),
-	// 			insertedWords: [
-	// 				...gridVersioning.getLatestVersion().insertedWords,
-	// 				{
-	// 					word: word,
-	// 					wordPath: wordPath,
-	// 				},
-	// 			],
-	// 		}
-	// 		gridVersioning.info.push(info)
-	// 	},
-	// 	pop: (): GridInfo["info"][0] => {
-	// 		if (gridVersioning.getLength() > 1) gridVersioning.info.pop()
-	// 		return gridVersioning.getGrid()
-	// 	},
-	// 	getGrid: (): string[][] => {
-	// 		return copyMatrix(gridVersioning.getLatestVersion().grid)
-	// 	},
-	// 	getLatestVersion: (): GridInfo["info"][0] => {
-	// 		return gridVersioning.info[gridVersioning.getLength() - 1]
-	// 	},
-	// 	getInsertedWords: (): string[] => {
-	// 		if (gridVersioning.getLength() === 0) return []
-	// 		let words = []
-	// 		for (let { word } of gridVersioning.getLatestVersion().insertedWords) {
-	// 			words.push(word)
-	// 		}
+	let gridVersioning: GridInfo = {
+		info: [
+			{
+				grid: emptyMatrix(),
+				insertedWords: [],
+			},
+		],
+		push: (grid: string[][], word: string, wordPath: Point[], regex: string): void => {
+			const info: GridInfo["info"][0] = {
+				grid: copyMatrix(grid),
+				insertedWords: [
+					...gridVersioning.getLatestVersion().insertedWords,
+					{
+						word: word,
+						wordPath: wordPath,
+					},
+				],
+			}
+			gridVersioning.info.push(info)
+		},
+		pop: (): GridInfo["info"][0] => {
+			if (gridVersioning.getLength() > 1) gridVersioning.info.pop()
+			return gridVersioning.getGrid()
+		},
+		getGrid: (): string[][] => {
+			return copyMatrix(gridVersioning.getLatestVersion().grid)
+		},
+		getLatestVersion: (): GridInfo["info"][0] => {
+			return gridVersioning.info[gridVersioning.getLength() - 1]
+		},
+		getInsertedWords: (): string[] => {
+			if (gridVersioning.getLength() === 0) return []
+			let words = []
+			for (let { word } of gridVersioning.getLatestVersion().insertedWords) {
+				words.push(word)
+			}
 
-	// 		return words
-	// 	},
-	// 	getLength: (): number => {
-	// 		return gridVersioning.info.length
-	// 	},
-	// }
+			return words
+		},
+		getLength: (): number => {
+			return gridVersioning.info.length
+		},
+	}
 
-	// let grid = gridVersioning.getGrid()
+	let grid = gridVersioning.getGrid()
 
 	let getEmptyCoordinates = (): Point[] => {
 		let coordinates: Point[] = []
