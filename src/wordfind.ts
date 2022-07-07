@@ -1,4 +1,4 @@
-import * as wordOccurrencies from "../data/word_occurrencies.json"
+import * as wordOccurrencies from "../data/example_word_occurrencies.json"
 
 interface Coordinates {
 	x: number
@@ -28,7 +28,7 @@ var WordFind = (() => {
 
 	let finalWordLength: number = 8
 
-	let choices: Map<String, String[]> = new Map()
+	let choices: Map<String, Map<String, String[]>> = new Map()
 
 	let copyMatrix = (matrix: string[][]): string[][] => {
 		return JSON.parse(JSON.stringify(matrix))
@@ -133,10 +133,13 @@ var WordFind = (() => {
 		const wordPath = getCompatibleWordPath(maxLength, coordinates)
 		let regex: string = ""
 		for (let { x, y } of wordPath) regex += grid[y][x] !== "" ? grid[y][x] : "."
-		const choice = { coordinates: coordinates, regex: regex }
-		const visitedWords = choices.has(JSON.stringify(choice)) ? choices.get(JSON.stringify(choice)) : []
+		if (!choices.has(JSON.stringify(coordinates))) {
+			choices.set(JSON.stringify(coordinates), new Map())
+		}
+		let wordRegex = choices.get(JSON.stringify(coordinates))
+		const visitedWords = wordRegex.has(regex) ? wordRegex.get(regex) : []
 		const matchingWords: string[] = wordList.filter((word) => new RegExp(regex).test(word) && !insertedWords.includes(word) && !visitedWords.includes(word))
-		choices.set(JSON.stringify(choice), [...visitedWords, ...matchingWords])
+		wordRegex.set(regex, [...visitedWords, ...matchingWords])
 		if (matchingWords.length === 0) return { words: [], wordPath: [] }
 		return { words: shuffle(matchingWords), wordPath: wordPath }
 	}
@@ -195,9 +198,7 @@ var WordFind = (() => {
 			const { words } = pickWord(maxWordLength, possibility)
 
 			for (let word of words) {
-				if (choices.size > cols * rows * 10) throw Error("Too many backtracks, try again!")
 				console.log(`Inserted: ${insertedWords}`)
-				console.log(choices.size)
 				grid = addWordToGrid(grid, word, possibility)
 				insertedWords.push(word)
 				if (fillGrid()) return true
