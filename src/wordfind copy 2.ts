@@ -186,7 +186,7 @@ var WordFind = (() => {
 		return array.filter((elem) => elem != undefined)
 	}
 
-	let fillGrid = (): { grid: string[][]; insertedWords: string[] } | boolean => {
+	let fillGrid = (): boolean => {
 		const backtrackMatrixCopy = copyMatrix(grid)
 		const possibilites = shuffle(getPossibilities())
 		if (getEmptyCoordinates().length <= finalWordLength) return true
@@ -195,11 +195,12 @@ var WordFind = (() => {
 			const { words } = pickWord(maxWordLength, possibility)
 
 			for (let word of words) {
+				if (choices.size > cols * rows * 10) throw Error("Too many backtracks, try again!")
 				console.log(`Inserted: ${insertedWords}`)
 				console.log(choices.size)
 				grid = addWordToGrid(grid, word, possibility)
 				insertedWords.push(word)
-				if (fillGrid()) return { grid: grid, insertedWords: insertedWords }
+				if (fillGrid()) return true
 				grid = copyMatrix(backtrackMatrixCopy)
 				insertedWords.pop()
 			}
@@ -207,17 +208,23 @@ var WordFind = (() => {
 		return false
 	}
 
-	// let insertLastWord = (): string => {
-	// 	//TODO: if doesn't exist a final word, backtrack
-	// 	const emptyCoordinates: Point[] = getEmptyCoordinates()
-	// 	const finalWordArray: string[] = wordOccurrencies[`${emptyCoordinates.length}` as keyof typeof wordOccurrencies]
-	// 	const finalWord: string = finalWordArray[Math.floor(Math.random() * finalWordArray.length)]
-	// 	for (let i = 0; i < finalWord.length; i++) {
-	// 		const { x, y } = emptyCoordinates[i]
-	// 		grid[y][x] = finalWord[i]
-	// 	}
-	// 	return finalWord
-	// }
+	let main = (): { grid: string[][]; insertedWords: string[]; finalWord: string } => {
+		fillGrid()
+		let finalWord: string = insertLastWord()
+		return { grid: grid, insertedWords: insertedWords, finalWord: finalWord }
+	}
+
+	let insertLastWord = (): string => {
+		//TODO: if doesn't exist a final word, backtrack
+		const emptyCoordinates: Point[] = getEmptyCoordinates()
+		const finalWordArray: string[] = wordOccurrencies[`${emptyCoordinates.length}` as keyof typeof wordOccurrencies]
+		const finalWord: string = finalWordArray[Math.floor(Math.random() * finalWordArray.length)]
+		for (let i = 0; i < finalWord.length; i++) {
+			const { x, y } = emptyCoordinates[i]
+			grid[y][x] = finalWord[i]
+		}
+		return finalWord
+	}
 
 	// let getWordPath = (wordToFind: string): Point[] => {
 	// 	for (let { word, wordPath } of gridVersioning.getLatestVersion().insertedWords) {
@@ -230,9 +237,9 @@ var WordFind = (() => {
 	// 	return getWordPath(wordToFind)[0]
 	// }
 
-	return { fillGrid }
+	return { main }
 })()
 
 export default WordFind
 
-console.log(WordFind.fillGrid())
+console.log(WordFind.main())
