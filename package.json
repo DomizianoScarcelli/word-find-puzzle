@@ -8,7 +8,7 @@
 	},
 	"scripts": {
 		"test": "jest",
-		"start": "ts-node src/wordfind.ts"
+		"start": "ts-node testExecution.ts"
 	},
 	"repository": {
 		"type": "git",
