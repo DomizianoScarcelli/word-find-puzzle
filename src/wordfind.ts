@@ -22,7 +22,7 @@ enum Directions {
 	DOWN_LEFT = "DOWN_LEFT",
 }
 
-var WordFind = (() => {
+var WordFind = () => {
 	let rows: number = 8,
 		cols: number = 8
 
@@ -207,10 +207,16 @@ var WordFind = (() => {
 		return false
 	}
 
-	let main = (): { grid: string[][]; insertedWords: string[]; finalWord: string } => {
+	let create = (): { grid: string[][]; insertedWords: string[]; finalWord: string } => {
 		fillGrid()
 		let finalWord: string = insertLastWord()
 		return { grid: grid, insertedWords: insertedWords, finalWord: finalWord }
+	}
+
+	let clear = () => {
+		grid = emptyMatrix()
+		insertedWords = []
+		choices = new Map()
 	}
 
 	let insertLastWord = (): string => {
@@ -236,9 +242,14 @@ var WordFind = (() => {
 	// 	return getWordPath(wordToFind)[0]
 	// }
 
-	return { main }
-})()
+	return { create, clear }
+}
+
+const wordFinder = WordFind()
+console.log(wordFinder.create())
+var t0 = performance.now()
+
+var t1 = performance.now()
+console.log("Wordfind took " + (t1 - t0) + " milliseconds")
 
 export default WordFind
-
-console.log(WordFind.main())
