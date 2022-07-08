@@ -30,6 +30,10 @@ var WordFind = () => {
 
 	let choices: Map<String, Map<String, String[]>> = new Map()
 
+	let iterations: number = 0
+
+	const ITERATIONS_LIMIT = rows * cols * 5
+
 	let copyMatrix = (matrix: string[][]): string[][] => {
 		return JSON.parse(JSON.stringify(matrix))
 	}
@@ -188,6 +192,7 @@ var WordFind = () => {
 	}
 
 	let fillGrid = (): boolean => {
+		if (iterations > ITERATIONS_LIMIT) throw Error("Max number of Iterations")
 		const backtrackMatrixCopy = copyMatrix(grid)
 		const possibilites = shuffle(getPossibilities())
 		if (getEmptyCoordinates().length <= finalWordLength && getEmptyCoordinates().length >= 4) return true
@@ -197,6 +202,8 @@ var WordFind = () => {
 
 			for (let word of words) {
 				console.log(`Inserted: ${insertedWords}`)
+				console.log(iterations)
+				iterations++
 				grid = addWordToGrid(grid, word, possibility)
 				insertedWords.push(word)
 				if (fillGrid()) return true
@@ -208,7 +215,12 @@ var WordFind = () => {
 	}
 
 	let create = (): { grid: string[][]; insertedWords: string[]; finalWord: string } => {
-		fillGrid()
+		try {
+			fillGrid()
+		} catch {
+			clear()
+			return create()
+		}
 		let finalWord: string = insertLastWord()
 		return { grid: grid, insertedWords: insertedWords, finalWord: finalWord }
 	}
@@ -217,6 +229,7 @@ var WordFind = () => {
 		grid = emptyMatrix()
 		insertedWords = []
 		choices = new Map()
+		iterations = 0
 	}
 
 	let insertLastWord = (): string => {
@@ -245,11 +258,11 @@ var WordFind = () => {
 	return { create, clear }
 }
 
-const wordFinder = WordFind()
-console.log(wordFinder.create())
-var t0 = performance.now()
+// const wordFinder = WordFind()
+// console.log(wordFinder.create())
+// var t0 = performance.now()
 
-var t1 = performance.now()
-console.log("Wordfind took " + (t1 - t0) + " milliseconds")
+// var t1 = performance.now()
+// console.log("Wordfind took " + (t1 - t0) + " milliseconds")
 
 export default WordFind
