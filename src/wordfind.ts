@@ -201,8 +201,8 @@ var WordFind = () => {
 			const { words } = pickWord(maxWordLength, possibility)
 
 			for (let word of words) {
-				console.log(`Inserted: ${insertedWords}`)
-				console.log(iterations)
+				// console.log(`Inserted: ${insertedWords}`)
+				// console.log(iterations)
 				iterations++
 				grid = addWordToGrid(grid, word, possibility)
 				insertedWords.push(word)
