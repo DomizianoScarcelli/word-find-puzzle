@@ -1,4 +1,4 @@
-import * as wordOccurrencies from "../data/word_occurrencies.json"
+import * as wordOccurrenciesJSON from "../data/word_occurrencies.json"
 
 interface Coordinates {
 	x: number
@@ -21,20 +21,27 @@ enum Directions {
 	DOWN_RIGHT = "DOWN_RIGHT",
 	DOWN_LEFT = "DOWN_LEFT",
 }
-
-var WordFind = () => {
+/**
+ *
+ * @param settingsCols
+ * @param settingsRows
+ * @param settingsFinalWordLength
+ * @param wordsToFind
+ * @returns
+ */
+var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordLength?: number, wordsToFind?: string[]) => {
 	/**
 	 * Number of rows in the puzzle grid
 	 */
-	let rows: number = 10
+	let rows: number = settingsRows || 10
 	/**
 	 * Number of columns in the puzzle grid
 	 */
-	let cols: number = 10
+	let cols: number = settingsCols || 10
 	/**
 	 * The maximum length that the final word has to be
 	 */
-	let finalWordLength: number = 8
+	let finalWordLength: number = settingsFinalWordLength || 8
 
 	let insertedWords: { word: string; wordPath: Point[] }[] = []
 
@@ -43,6 +50,12 @@ var WordFind = () => {
 	let iterations: number = 0
 
 	const ITERATIONS_LIMIT = Math.max(50, rows * cols)
+
+	let createWordOccurrenciesMap = (): Map<number, string[]> => {
+		let map: Map<number, string[]> = new Map()
+		for (let elem in wordOccurrenciesJSON) map.set(Number(elem), wordOccurrenciesJSON[elem])
+		return map
+	}
 
 	let copyMatrix = (matrix: string[][]): string[][] => {
 		return JSON.parse(JSON.stringify(matrix))
@@ -142,7 +155,7 @@ var WordFind = () => {
 
 	let pickWord = (maxLength: number, coordinates: Coordinates): { words: string[]; wordPath: Point[] } => {
 		let wordList: string[] = []
-		for (let length = 4; length <= maxLength; length++) wordList = wordList.concat(wordOccurrencies[`${length}` as keyof typeof wordOccurrencies])
+		for (let length = 4; length <= maxLength; length++) wordList = wordList.concat(wordOccurrenciesJSON[`${length}` as keyof typeof wordOccurrenciesJSON])
 		const wordPath = getCompatibleWordPath(maxLength, coordinates)
 		let regex: string = ""
 		for (let { x, y } of wordPath) regex += grid[y][x] !== "" ? grid[y][x] : "."
@@ -192,7 +205,7 @@ var WordFind = () => {
 	}
 
 	let shuffle = (array: any[]): any[] => {
-		var j, x, i
+		let j: number, x: number, i: number
 		for (i = array.length - 1; i > 0; i--) {
 			j = Math.round(Math.random() * (i + 1))
 			x = array[i]
@@ -244,9 +257,9 @@ var WordFind = () => {
 	}
 
 	let insertLastWord = (): { finalWord: string; finalWordPath: Point[] } => {
-		//TODO: if a final words doesn't exist, backtrack
 		const emptyCoordinates: Point[] = getEmptyCoordinates()
-		const finalWordArray: string[] = wordOccurrencies[`${emptyCoordinates.length}` as keyof typeof wordOccurrencies]
+		const finalWordArray: string[] = wordOccurrenciesJSON[`${emptyCoordinates.length}` as keyof typeof wordOccurrenciesJSON]
+		//TODO: if a final words doesn't exist, backtrack
 		const finalWord: string = finalWordArray[Math.floor(Math.random() * finalWordArray.length)]
 		for (let i = 0; i < finalWord.length; i++) {
 			const { x, y } = emptyCoordinates[i]
@@ -255,10 +268,42 @@ var WordFind = () => {
 		return { finalWord: finalWord, finalWordPath: emptyCoordinates }
 	}
 
+	//-------- Modify Settings ---------
+
 	let setGridSize = (newRows: number, newCols: number) => {
 		rows = newRows
 		cols = newCols
 	}
+
+	let setFinalWord = (word: string) => {}
+
+	let setMaximumFinalWordLength = (length: number) => {
+		finalWordLength = length
+	}
+
+	let addWordsToFind = (words: string[]) => {
+		for (let word of words) {
+			addWordToFind(word)
+		}
+	}
+
+	let addWordToFind = (word: string) => {
+		wordOccurrenciesJSON[word.length] = [...wordOccurrenciesJSON[word.length], word]
+	}
+
+	let removeWordsToFind = (words: string[]) => {
+		for (let word of words) {
+			removeWordToFind(word)
+		}
+	}
+
+	let removeWordToFind = (word: string) => {
+		for (let elem in wordOccurrenciesJSON) {
+			const words = wordOccurrenciesJSON[elem].splice(wordOccurrenciesJSON[elem].indexOf(word))
+		}
+	}
+
+	//------ Getters ---------
 
 	let getWordPath = (wordToFind: string): Point[] => {
 		for (let { word, wordPath } of insertedWords) {
@@ -267,13 +312,23 @@ var WordFind = () => {
 		return []
 	}
 
-	let setRandomSeed = (randomSeed: number) => {}
+	let getInsertedWords = (): string[] => {
+		let insertedWordsArray: string[] = []
+		for (let { word } of insertedWords) insertedWordsArray.push(word)
+		return insertedWordsArray
+	}
 
-	// let wordHint = (wordToFind: string): Point => {
-	// 	return getWordPath(wordToFind)[0]
-	// }
+	let getGrid = (): string[][] => {
+		return copyMatrix(grid)
+	}
 
-	return { create, clear, getWordPath, setGridSize, setRandomSeed }
+	let getListOfWords = (): string[] => {
+		let wordList = []
+		for (let elem in wordOccurrenciesJSON) wordList = wordList.concat(wordOccurrenciesJSON[`${elem}` as keyof typeof wordOccurrenciesJSON])
+		return wordList
+	}
+
+	return { create, clear, getWordPath, setGridSize, getGrid, getInsertedWords, addWordToFind, addWordsToFind, getListOfWords, removeWordToFind, removeWordsToFind }
 }
 
 export default WordFind
