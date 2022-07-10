@@ -2,7 +2,7 @@ import WordFind from "../src/wordfind"
 
 //Test the speed of n iteration of the algorithm
 describe("Execution performance", () => {
-	test.skip("Performance of 50 wordfind puzzle creation", () => {
+	test("Performance of 50 wordfind puzzle creation", () => {
 		const NUMBER_OF_TESTS = 50
 		const initialTime = performance.now()
 		for (let index = 0; index < NUMBER_OF_TESTS; index++) {
@@ -20,7 +20,10 @@ describe("Execution performance", () => {
 
 //TODO: Test if a random generated wordfind puzzle is solvable
 describe("Puzzle creation", () => {
-	test.skip("A puzzle is created correctly", () => {
+	test("A word is inserted correctly inside the grid", () => {
+		const wordFind = WordFind()
+	})
+	test("A puzzle is created correctly", () => {
 		const wordFind = WordFind()
 		const { grid, insertedWords } = wordFind.create()
 		for (let { word, wordPath } of insertedWords) {
@@ -31,7 +34,7 @@ describe("Puzzle creation", () => {
 			}
 		}
 	})
-	test.skip("The last word is inserted correctly", () => {
+	test("The last word is inserted correctly", () => {
 		const wordFind = WordFind()
 		const { grid, finalWord, finalWordPath } = wordFind.create()
 		let index = 0

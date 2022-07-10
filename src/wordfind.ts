@@ -8,7 +8,7 @@ interface Coordinates {
 
 interface Point {
 	x: number
-	y: number
+	y: number 
 }
 
 enum Directions {
