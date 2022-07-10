@@ -20,7 +20,26 @@ describe("Execution performance", () => {
 
 //TODO: Test if a random generated wordfind puzzle is solvable
 describe("Puzzle creation", () => {
-	test.skip("A created puzzle is solvable", () => {})
+	test.skip("A puzzle is created correctly", () => {
+		const wordFind = WordFind()
+		const { grid, insertedWords } = wordFind.create()
+		for (let { word, wordPath } of insertedWords) {
+			let index = 0
+			for (let { x, y } of wordPath) {
+				expect(grid[y][x] === word[index]).toBeTruthy()
+				index++
+			}
+		}
+	})
+	test.skip("The last word is inserted correctly", () => {
+		const wordFind = WordFind()
+		const { grid, finalWord, finalWordPath } = wordFind.create()
+		let index = 0
+		for (let { x, y } of finalWordPath) {
+			expect(grid[y][x] === finalWord[index]).toBeTruthy()
+			index++
+		}
+	})
 })
 
 describe("Getters and setters", () => {
@@ -64,4 +83,8 @@ describe("Getters and setters", () => {
 			expect(wordFind2.getListOfWords().includes(word)).toBeFalsy()
 		}
 	})
+})
+
+describe("Testing edge cases", () => {
+	test("Grid without words to find", () => {})
 })
