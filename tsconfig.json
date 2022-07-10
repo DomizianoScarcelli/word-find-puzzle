@@ -10,5 +10,5 @@
 		"sourceMap": true,
 		"watch": true
 	},
-	"include": ["src/*", "src/wordfind.ts"]
+	"include": ["src/*"]
 }

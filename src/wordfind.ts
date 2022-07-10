@@ -57,6 +57,8 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 		return map
 	}
 
+	const wordOccurrencies = createWordOccurrenciesMap()
+
 	let copyMatrix = (matrix: string[][]): string[][] => {
 		return JSON.parse(JSON.stringify(matrix))
 	}
@@ -155,7 +157,7 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 
 	let pickWord = (maxLength: number, coordinates: Coordinates): { words: string[]; wordPath: Point[] } => {
 		let wordList: string[] = []
-		for (let length = 4; length <= maxLength; length++) wordList = wordList.concat(wordOccurrenciesJSON[`${length}` as keyof typeof wordOccurrenciesJSON])
+		for (let length = 4; length <= maxLength; length++) wordList = wordList.concat(wordOccurrencies.get(length))
 		const wordPath = getCompatibleWordPath(maxLength, coordinates)
 		let regex: string = ""
 		for (let { x, y } of wordPath) regex += grid[y][x] !== "" ? grid[y][x] : "."
@@ -258,7 +260,7 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 
 	let insertLastWord = (): { finalWord: string; finalWordPath: Point[] } => {
 		const emptyCoordinates: Point[] = getEmptyCoordinates()
-		const finalWordArray: string[] = wordOccurrenciesJSON[`${emptyCoordinates.length}` as keyof typeof wordOccurrenciesJSON]
+		const finalWordArray: string[] = wordOccurrencies.get(emptyCoordinates.length) //TODO: mi ritorna undefined
 		//TODO: if a final words doesn't exist, backtrack
 		const finalWord: string = finalWordArray[Math.floor(Math.random() * finalWordArray.length)]
 		for (let i = 0; i < finalWord.length; i++) {
@@ -288,7 +290,7 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 	}
 
 	let addWordToFind = (word: string) => {
-		wordOccurrenciesJSON[word.length] = [...wordOccurrenciesJSON[word.length], word]
+		wordOccurrencies.set(word.length, [...wordOccurrencies.get(word.length), word])
 	}
 
 	let removeWordsToFind = (words: string[]) => {
@@ -298,8 +300,9 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 	}
 
 	let removeWordToFind = (word: string) => {
-		for (let elem in wordOccurrenciesJSON) {
-			const words = wordOccurrenciesJSON[elem].splice(wordOccurrenciesJSON[elem].indexOf(word))
+		for (let elem of wordOccurrencies) {
+			const words = wordOccurrencies.get(elem[0]).splice(wordOccurrencies.get(elem[0]).indexOf(word))
+			wordOccurrencies.set(elem[0], words)
 		}
 	}
 
@@ -324,7 +327,7 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 
 	let getListOfWords = (): string[] => {
 		let wordList = []
-		for (let elem in wordOccurrenciesJSON) wordList = wordList.concat(wordOccurrenciesJSON[`${elem}` as keyof typeof wordOccurrenciesJSON])
+		for (let elem of wordOccurrencies) wordList = wordList.concat(wordOccurrencies.get(elem[0]))
 		return wordList
 	}
 
