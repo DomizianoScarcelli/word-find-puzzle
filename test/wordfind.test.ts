@@ -24,7 +24,9 @@ describe("Puzzle creation", () => {
 })
 
 describe("Getters and setters", () => {
-	test("Get list of words to find", () => {})
+	test("Get list of words to find", () => {
+		//TODO: define a method that clears the list of words to use in order to make this test
+	})
 	test("Add new words to find", () => {
 		const wordFind = WordFind()
 		const wordsToFind: string[] = []
@@ -56,6 +58,7 @@ describe("Getters and setters", () => {
 		for (let word of wordsToAdd) wordFind.addWordToFind(word)
 		wordFind2.addWordsToFind(wordsToAdd)
 		for (let word of wordsToAdd) wordFind.removeWordToFind(word)
+		wordFind2.removeWordsToFind(wordsToAdd)
 		for (let word of wordsToAdd) {
 			expect(wordFind.getListOfWords().includes(word)).toBeFalsy()
 			expect(wordFind2.getListOfWords().includes(word)).toBeFalsy()

@@ -290,7 +290,8 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 	}
 
 	let addWordToFind = (word: string) => {
-		wordOccurrencies.set(word.length, [...wordOccurrencies.get(word.length), word])
+		if (wordOccurrencies.get(word.length) !== undefined) wordOccurrencies.set(word.length, [...wordOccurrencies.get(word.length), word])
+		else wordOccurrencies.set(word.length, [word])
 	}
 
 	let removeWordsToFind = (words: string[]) => {
@@ -301,8 +302,12 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 
 	let removeWordToFind = (word: string) => {
 		for (let elem of wordOccurrencies) {
-			const words = wordOccurrencies.get(elem[0]).splice(wordOccurrencies.get(elem[0]).indexOf(word))
-			wordOccurrencies.set(elem[0], words)
+			if (wordOccurrencies.get(elem[0]) !== undefined) {
+				wordOccurrencies.set(
+					elem[0],
+					wordOccurrencies.get(elem[0]).filter((elem) => elem != word)
+				)
+			}
 		}
 	}
 
