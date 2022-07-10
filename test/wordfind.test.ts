@@ -22,3 +22,43 @@ describe("Execution performance", () => {
 describe("Puzzle creation", () => {
 	test.skip("A created puzzle is solvable", () => {})
 })
+
+describe("Getters and setters", () => {
+	test("Get list of words to find", () => {})
+	test("Add new words to find", () => {
+		const wordFind = WordFind()
+		const wordsToFind: string[] = []
+		let partialWord: string = ""
+		for (let i = 0; i < 100; i++) {
+			partialWord += "a"
+			wordsToFind.push(partialWord)
+		}
+		for (let word of wordsToFind) wordFind.addWordToFind(word)
+		const wordFind2 = WordFind()
+		wordFind2.addWordsToFind(wordsToFind)
+		let partialLength = 1
+		for (let word of wordsToFind) {
+			expect(word.length === partialLength).toBeTruthy()
+			expect(wordFind.getListOfWords().includes(word)).toBeTruthy()
+			expect(wordFind2.getListOfWords().includes(word)).toBeTruthy()
+			partialLength += 1
+		}
+	})
+	test("Remove words to find", () => {
+		const wordFind = WordFind()
+		const wordFind2 = WordFind()
+		const wordsToAdd: string[] = []
+		let partialWord: string = ""
+		for (let i = 0; i < 100; i++) {
+			partialWord += "a"
+			wordsToAdd.push(partialWord)
+		}
+		for (let word of wordsToAdd) wordFind.addWordToFind(word)
+		wordFind2.addWordsToFind(wordsToAdd)
+		for (let word of wordsToAdd) wordFind.removeWordToFind(word)
+		for (let word of wordsToAdd) {
+			expect(wordFind.getListOfWords().includes(word)).toBeFalsy()
+			expect(wordFind2.getListOfWords().includes(word)).toBeFalsy()
+		}
+	})
+})
