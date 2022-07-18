@@ -8,7 +8,7 @@ interface Coordinates {
 
 interface Point {
 	x: number
-	y: number 
+	y: number
 }
 
 enum Directions {
@@ -33,11 +33,11 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 	/**
 	 * Number of rows in the puzzle grid
 	 */
-	let rows: number = settingsRows || 10
+	let rows: number = settingsRows || 8
 	/**
 	 * Number of columns in the puzzle grid
 	 */
-	let cols: number = settingsCols || 10
+	let cols: number = settingsCols || 8
 	/**
 	 * The maximum length that the final word has to be
 	 */
@@ -336,6 +336,13 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 		return wordList
 	}
 
+	//---- TODO: Sperimental stuff -----
+	let canGeneratePuzzle = (): boolean => {
+		// Remove all the words that don't fit inside the grid
+		// If there isn't a sum of the words that satisfies (sum - col - rows <= finalWordLength), return false
+		//
+		return false
+	}
 	return { create, clear, getWordPath, setGridSize, getGrid, getInsertedWords, addWordToFind, addWordsToFind, getListOfWords, removeWordToFind, removeWordsToFind }
 }
 
