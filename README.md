@@ -1,5 +1,24 @@
 # Word find puzzle generator
 
+- [Word find puzzle generator](#word-find-puzzle-generator)
+- [Getting started](#getting-started)
+- [Settings](#settings)
+- [Puzzle creation algorithm](#puzzle-creation-algorithm)
+- [Methods](#methods)
+  - [`create()`](#create)
+  - [`clear()`](#clear)
+- [Getters](#getters)
+  - [`getWordPath(word)`](#getwordpathword)
+  - [`getGrid()`](#getgrid)
+  - [`getInsertedWords()`](#getinsertedwords)
+  - [`getListOfWords()`](#getlistofwords)
+- [Change settings](#change-settings)
+  - [`setGridSize(rows, cols)`](#setgridsizerows-cols)
+  - [`addWordToFind()`](#addwordtofind)
+  - [`addWordsToFind()`](#addwordstofind)
+  - [`removeWordToFind()`](#removewordtofind)
+  - [`removeWordsToFind()`](#removewordstofind)
+
 This library can generate a word find (also known as word search) puzzle of any dimension from a set of words.
 
 The library is written in Typescript and it's tested using [Jest](https://github.com/facebook/jest).

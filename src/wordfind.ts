@@ -340,7 +340,7 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 	let canGeneratePuzzle = (): boolean => {
 		// Remove all the words that don't fit inside the grid
 		// If there isn't a sum of the words that satisfies (sum - col - rows <= finalWordLength), return false
-		//
+		// 
 		return false
 	}
 	return { create, clear, getWordPath, setGridSize, getGrid, getInsertedWords, addWordToFind, addWordsToFind, getListOfWords, removeWordToFind, removeWordsToFind }

@@ -1,5 +1,11 @@
 import WordFind from "../src/wordfind"
 
+const getNRandomWordsFromWordList = (N: number, wordList: string[]): string[] => {
+	let returnWords: string[] = []
+	
+	return returnWords
+}
+
 //Test the speed of n iteration of the algorithm
 describe("Execution performance", () => {
 	test("Performance of 50 wordfind puzzle creation", () => {
@@ -21,6 +27,7 @@ describe("Execution performance", () => {
 //TODO: Test if a random generated wordfind puzzle is solvable
 describe("Puzzle creation", () => {
 	test("A word is inserted correctly inside the grid", () => {
+		// TODO:
 		const wordFind = WordFind()
 	})
 	test("A puzzle is created correctly", () => {
@@ -42,6 +49,13 @@ describe("Puzzle creation", () => {
 			expect(grid[y][x] === finalWord[index]).toBeTruthy()
 			index++
 		}
+	})
+
+	test("Puzzle creation with random subsets of random words and dimensions", () => {
+		// TODO:
+		const wordFind = WordFind()
+		const numOfWords: number = Math.random() * 200
+		const size: number = Math.max(4, Math.random() * 12)
 	})
 })
 
