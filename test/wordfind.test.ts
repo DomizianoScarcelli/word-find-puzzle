@@ -2,7 +2,7 @@ import WordFind from "../src/wordfind"
 
 const getNRandomWordsFromWordList = (N: number, wordList: string[]): string[] => {
 	let returnWords: string[] = []
-	
+
 	return returnWords
 }
 
@@ -103,5 +103,13 @@ describe("Getters and setters", () => {
 })
 
 describe("Testing edge cases", () => {
-	test("Grid without words to find", () => {})
+	test("Grid without words to find", () => {
+		const wordFind = WordFind()
+		const allWords = wordFind.getListOfWords()
+		wordFind.removeWordsToFind(allWords)
+		expect(() => wordFind.create()).toThrow(new Error("Not enough words to insert"))
+	})
+
+	test("Grid with not enough words to find", () => {})
+	test("Grid too small to fit any word", () => {})
 })

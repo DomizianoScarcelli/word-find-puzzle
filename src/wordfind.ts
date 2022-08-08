@@ -241,13 +241,20 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 	}
 
 	let create = (): { grid: string[][]; insertedWords: { word: string; wordPath: Point[] }[]; finalWord: string; finalWordPath: Point[] } => {
+		let gridFilled = false
+		let finalWord = ""
+		let finalWordPath = []
 		try {
-			fillGrid()
+			gridFilled = fillGrid()
 		} catch {
 			clear()
 			return create()
 		}
-		let { finalWord, finalWordPath } = insertLastWord()
+		if (!gridFilled) throw new Error("Not enough words to insert")
+		let { finalWord: calculatedFinalWord, finalWordPath: calculatedFinalWordPath } = insertLastWord()
+		finalWord = calculatedFinalWord
+		finalWordPath = calculatedFinalWordPath
+
 		return { grid: grid, insertedWords: insertedWords, finalWord: finalWord, finalWordPath: finalWordPath }
 	}
 
@@ -340,7 +347,7 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 	let canGeneratePuzzle = (): boolean => {
 		// Remove all the words that don't fit inside the grid
 		// If there isn't a sum of the words that satisfies (sum - col - rows <= finalWordLength), return false
-		// 
+		//
 		return false
 	}
 	return { create, clear, getWordPath, setGridSize, getGrid, getInsertedWords, addWordToFind, addWordsToFind, getListOfWords, removeWordToFind, removeWordsToFind }
