@@ -164,9 +164,7 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 		if (!choices.has(JSON.stringify(coordinates))) choices.set(JSON.stringify(coordinates), new Map())
 		let wordRegex = choices.get(JSON.stringify(coordinates))
 		const visitedWords = wordRegex.has(regex) ? wordRegex.get(regex) : []
-		const matchingWords: string[] = wordList.filter(
-			(word) => new RegExp(regex).test(word) && !insertedWords.map((elem) => JSON.stringify(elem)).includes(JSON.stringify({ word: word, wordPath: wordPath })) && !visitedWords.includes(word)
-		)
+		const matchingWords: string[] = wordList.filter((word) => new RegExp(regex).test(word) && !getInsertedWords().includes(word) && !visitedWords.includes(word))
 		wordRegex.set(regex, [...visitedWords, ...matchingWords])
 		if (matchingWords.length === 0) return { words: [], wordPath: [] }
 		return { words: shuffle(matchingWords), wordPath: wordPath }
@@ -268,7 +266,10 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 	let insertLastWord = (): { finalWord: string; finalWordPath: Point[] } => {
 		const emptyCoordinates: Point[] = getEmptyCoordinates()
 		const finalWordArray: string[] = wordOccurrencies.get(emptyCoordinates.length) //TODO: mi ritorna undefined
-		//TODO: if a final words doesn't exist, backtrack
+		if (finalWordArray.length === 0) {
+			throw new Error("Cannot find a final word")
+			//TODO: if a final words doesn't exist, backtrack
+		}
 		const finalWord: string = finalWordArray[Math.floor(Math.random() * finalWordArray.length)]
 		for (let i = 0; i < finalWord.length; i++) {
 			const { x, y } = emptyCoordinates[i]
