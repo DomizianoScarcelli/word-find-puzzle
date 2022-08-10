@@ -1,4 +1,4 @@
-import * as wordOccurrenciesJSON from "../data/word_occurrencies.json"
+import wordOccurrenciesJSON from "../data/word_occurrencies.json"
 
 interface Coordinates {
 	x: number
@@ -12,11 +12,12 @@ interface Point {
 }
 
 interface WordFindOptions {
-	//TODO: add optional final phrase instead of final word length
-	cols?: number //TODO: strict between 4 and 11
+	cols?: number
 	rows?: number
 	finalWordLength?: number
 	wordsToFind?: string[] //TODO: implementation
+	iterationLimit?: number
+	//TODO: add optional final phrase instead of final word length
 }
 
 enum Directions {
@@ -54,7 +55,7 @@ var WordFind = (options?: WordFindOptions) => {
 
 	let iterations: number = 0
 
-	const ITERATIONS_LIMIT = Math.max(50, rows * cols)
+	const ITERATIONS_LIMIT = options?.iterationLimit || Math.max(50, rows * cols)
 
 	let createWordOccurrenciesMap = (): Map<number, string[]> => {
 		let map: Map<number, string[]> = new Map()
@@ -230,8 +231,8 @@ var WordFind = (options?: WordFindOptions) => {
 			const { words, wordPath } = pickWord(maxWordLength, possibility)
 
 			for (let word of words) {
-				console.log(`Inserted: ${getInsertedWords()}`)
-				console.log(iterations)
+				// console.log(`Inserted: ${getInsertedWords()}`)
+				// console.log(iterations)
 				iterations++
 				grid = addWordToGrid(grid, word, possibility)
 				insertedWords.push({ word: word, wordPath: wordPath })
@@ -245,11 +246,14 @@ var WordFind = (options?: WordFindOptions) => {
 
 	let validityCheck = (): void => {
 		// TODO: Remove all the words that don't fit inside the grid
+		validateOptions()
 		if (!areThereEnoughWordsToInsert()) throw new Error("Not enough words to insert")
 	}
 
-	let validateOptions = (): boolean => {
-		return true
+	let validateOptions = (): void => {
+		//Validate rows and columns
+		if (!(4 <= rows && rows <= 11 && 4 <= cols && rows <= 11)) throw new Error("Rows and Columns must be within 4 and 11")
+		//TODO: Validate final word length
 	}
 
 	let areThereEnoughWordsToInsert = (): boolean => {
@@ -350,7 +354,9 @@ var WordFind = (options?: WordFindOptions) => {
 
 	let getListOfWords = (): string[] => {
 		let wordList = []
-		for (let elem of wordOccurrencies) wordList = wordList.concat(wordOccurrencies.get(elem[0]))
+		for (let elem of wordOccurrencies) {
+			wordList = wordList.concat(wordOccurrencies.get(elem[0]))
+		}
 		return wordList
 	}
 

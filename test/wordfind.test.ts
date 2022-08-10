@@ -74,7 +74,10 @@ describe("Puzzle creation", () => {
 
 describe("Getters and setters", () => {
 	test("Get list of words to find", () => {
-		//TODO: define a method that clears the list of words to use in order to make this test
+		const wordFind = WordFind()
+		const allWords = wordFind.getListOfWords()
+		wordFind.removeWordsToFind(allWords)
+		expect(wordFind.getListOfWords().length === 0).toBeTruthy()
 	})
 	test("Add new words to find", () => {
 		const wordFind = WordFind()
@@ -128,7 +131,6 @@ describe("Testing edge cases", () => {
 		const allWords = wordFind.getListOfWords()
 		wordFind.removeWordsToFind(allWords)
 		const words = ["magic", "smartphone", "andrew", "keyboard", "soon", "laptop"]
-
 		expect(() => wordFind.create()).toThrow(new Error("Not enough words to insert"))
 	})
 })

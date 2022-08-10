@@ -13,7 +13,7 @@ import WordFind from "./src/wordfind"
 // wordFind.addWordToFind("mag")
 // console.log(wordFind.getListOfWords().includes("mag"))
 
-const wordFind = WordFind({ rows: 11, cols: 11 })
+const wordFind = WordFind()
 // const allWords = wordFind.getListOfWords()
 // wordFind.removeWordsToFind(allWords)
 
