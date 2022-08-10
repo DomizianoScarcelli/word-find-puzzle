@@ -16,8 +16,6 @@ import WordFind from "./src/wordfind"
 const wordFind = WordFind()
 const allWords = wordFind.getListOfWords()
 wordFind.removeWordsToFind(allWords)
-// //Now there are no words to find
-// wordFind.addWordToFind("daje")
-// wordFind.addWordToFind("dadadsd")
 
-wordFind.create()
+const { grid, insertedWords } = wordFind.create()
+console.log(grid)

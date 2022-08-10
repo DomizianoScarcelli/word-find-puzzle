@@ -219,13 +219,13 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 		if (iterations > ITERATIONS_LIMIT) throw Error("Max number of Iterations")
 		const backtrackMatrixCopy = copyMatrix(grid)
 		const possibilites = shuffle(getPossibilities())
-		if (getEmptyCoordinates().length <= finalWordLength && getEmptyCoordinates().length >= 4) return true
+		if (getEmptyCoordinates().length <= finalWordLength && getEmptyCoordinates().length >= 4) return true //TODO: getEmptyCoordinates().length >= 4 ORIGINAL VALUE
 		for (let possibility of possibilites) {
 			const maxWordLength = getMaximumWordLength(possibility)
 			const { words, wordPath } = pickWord(maxWordLength, possibility)
 
 			for (let word of words) {
-				console.log(`Inserted: ${insertedWords}`)
+				console.log(`Inserted: ${getInsertedWords()}`)
 				console.log(iterations)
 				iterations++
 				grid = addWordToGrid(grid, word, possibility)
@@ -238,7 +238,22 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 		return false
 	}
 
+	let validityCheck = (): void => {
+		// TODO: Remove all the words that don't fit inside the grid
+		if (!areThereEnoughWordsToInsert()) throw new Error("Not enough words to insert")
+	}
+
+	let areThereEnoughWordsToInsert = (): boolean => {
+		// Enough IFF Number of cells - Number of letters in all the words <= Maximum length of final word
+		const wordList = getListOfWords()
+		return wordList.length === 0
+			? false
+			: cols * rows - wordList.map((elem) => elem.length).reduce((a, b) => a + b) <= //TODO: throws "Reduce of empty array with no initial value" exeption if no words
+					finalWordLength
+	}
+
 	let create = (): { grid: string[][]; insertedWords: { word: string; wordPath: Point[] }[]; finalWord: string; finalWordPath: Point[] } => {
+		validityCheck()
 		let gridFilled = false
 		let finalWord = ""
 		let finalWordPath = []
@@ -266,7 +281,7 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 	let insertLastWord = (): { finalWord: string; finalWordPath: Point[] } => {
 		const emptyCoordinates: Point[] = getEmptyCoordinates()
 		const finalWordArray: string[] = wordOccurrencies.get(emptyCoordinates.length) //TODO: mi ritorna undefined
-		if (finalWordArray.length === 0) {
+		if (finalWordArray.length === 0 && finalWordLength !== 0) {
 			throw new Error("Cannot find a final word")
 			//TODO: if a final words doesn't exist, backtrack
 		}
@@ -281,6 +296,7 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 	//-------- Modify Settings ---------
 
 	let setGridSize = (newRows: number, newCols: number) => {
+		//TODO: strange bug doesn't work
 		rows = newRows
 		cols = newCols
 	}
@@ -344,13 +360,6 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 		return wordList
 	}
 
-	//---- TODO: Sperimental stuff -----
-	let canGeneratePuzzle = (): boolean => {
-		// Remove all the words that don't fit inside the grid
-		// If there isn't a sum of the words that satisfies (sum - col - rows <= finalWordLength), return false
-		//
-		return false
-	}
 	return { create, clear, getWordPath, setGridSize, getGrid, getInsertedWords, addWordToFind, addWordsToFind, getListOfWords, removeWordToFind, removeWordsToFind }
 }
 

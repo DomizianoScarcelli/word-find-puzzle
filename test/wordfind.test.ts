@@ -110,6 +110,12 @@ describe("Testing edge cases", () => {
 		expect(() => wordFind.create()).toThrow(new Error("Not enough words to insert"))
 	})
 
-	test("Grid with not enough words to find", () => {})
-	test("Grid too small to fit any word", () => {})
+	test("Grid with not enough words to find", () => {
+		const wordFind = WordFind() //By default 8x8 grid, so 64 characters to occupy
+		const allWords = wordFind.getListOfWords()
+		wordFind.removeWordsToFind(allWords)
+		const words = ["magic", "smartphone", "andrew", "keyboard", "soon", "laptop"]
+
+		expect(() => wordFind.create()).toThrow(new Error("Not enough words to insert"))
+	})
 })
