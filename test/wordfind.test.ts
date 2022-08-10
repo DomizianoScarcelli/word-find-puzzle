@@ -41,6 +41,19 @@ describe("Puzzle creation", () => {
 			}
 		}
 	})
+	// test("Puzzle creation with custom size", () => {
+	// 	for (let i = 4; i < 20; i++) {
+	// 		const wordFind = WordFind({ rows: i, cols: i })
+	// 		const { grid, insertedWords } = wordFind.create()
+	// 		for (let { word, wordPath } of insertedWords) {
+	// 			let index = 0
+	// 			for (let { x, y } of wordPath) {
+	// 				expect(grid[y][x]).toBe(word[index])
+	// 				index++
+	// 			}
+	// 		}
+	// 	}
+	// })
 	test("The last word is inserted correctly", () => {
 		const wordFind = WordFind()
 		const { grid, finalWord, finalWordPath } = wordFind.create()

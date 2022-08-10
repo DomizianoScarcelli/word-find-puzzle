@@ -11,6 +11,14 @@ interface Point {
 	y: number
 }
 
+interface WordFindOptions {
+	//TODO: add optional final phrase instead of final word length
+	cols?: number //TODO: strict between 4 and 11
+	rows?: number
+	finalWordLength?: number
+	wordsToFind?: string[] //TODO: implementation
+}
+
 enum Directions {
 	RIGHT = "RIGHT",
 	LEFT = "LEFT",
@@ -23,25 +31,22 @@ enum Directions {
 }
 /**
  *
- * @param settingsCols
- * @param settingsRows
- * @param settingsFinalWordLength
- * @param wordsToFind
+ * @param options
  * @returns
  */
-var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordLength?: number, wordsToFind?: string[]) => {
+var WordFind = (options?: WordFindOptions) => {
 	/**
 	 * Number of rows in the puzzle grid
 	 */
-	let rows: number = settingsRows || 8
+	let rows: number = options?.rows || 8
 	/**
 	 * Number of columns in the puzzle grid
 	 */
-	let cols: number = settingsCols || 8
+	let cols: number = options?.cols || 8
 	/**
 	 * The maximum length that the final word has to be
 	 */
-	let finalWordLength: number = settingsFinalWordLength || 8
+	let finalWordLength: number = options?.finalWordLength || 8
 
 	let insertedWords: { word: string; wordPath: Point[] }[] = []
 
@@ -219,7 +224,7 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 		if (iterations > ITERATIONS_LIMIT) throw Error("Max number of Iterations")
 		const backtrackMatrixCopy = copyMatrix(grid)
 		const possibilites = shuffle(getPossibilities())
-		if (getEmptyCoordinates().length <= finalWordLength && getEmptyCoordinates().length >= 4) return true //TODO: getEmptyCoordinates().length >= 4 ORIGINAL VALUE
+		if (getEmptyCoordinates().length <= finalWordLength && getEmptyCoordinates().length >= 4) return true
 		for (let possibility of possibilites) {
 			const maxWordLength = getMaximumWordLength(possibility)
 			const { words, wordPath } = pickWord(maxWordLength, possibility)
@@ -243,13 +248,14 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 		if (!areThereEnoughWordsToInsert()) throw new Error("Not enough words to insert")
 	}
 
+	let validateOptions = (): boolean => {
+		return true
+	}
+
 	let areThereEnoughWordsToInsert = (): boolean => {
 		// Enough IFF Number of cells - Number of letters in all the words <= Maximum length of final word
 		const wordList = getListOfWords()
-		return wordList.length === 0
-			? false
-			: cols * rows - wordList.map((elem) => elem.length).reduce((a, b) => a + b) <= //TODO: throws "Reduce of empty array with no initial value" exeption if no words
-					finalWordLength
+		return wordList.length === 0 ? false : cols * rows - wordList.map((elem) => elem.length).reduce((a, b) => a + b) <= finalWordLength
 	}
 
 	let create = (): { grid: string[][]; insertedWords: { word: string; wordPath: Point[] }[]; finalWord: string; finalWordPath: Point[] } => {
@@ -280,7 +286,7 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 
 	let insertLastWord = (): { finalWord: string; finalWordPath: Point[] } => {
 		const emptyCoordinates: Point[] = getEmptyCoordinates()
-		const finalWordArray: string[] = wordOccurrencies.get(emptyCoordinates.length) //TODO: mi ritorna undefined
+		const finalWordArray: string[] = wordOccurrencies.get(emptyCoordinates.length)
 		if (finalWordArray.length === 0 && finalWordLength !== 0) {
 			throw new Error("Cannot find a final word")
 			//TODO: if a final words doesn't exist, backtrack
@@ -294,18 +300,6 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 	}
 
 	//-------- Modify Settings ---------
-
-	let setGridSize = (newRows: number, newCols: number) => {
-		//TODO: strange bug doesn't work
-		rows = newRows
-		cols = newCols
-	}
-
-	let setFinalWord = (word: string) => {}
-
-	let setMaximumFinalWordLength = (length: number) => {
-		finalWordLength = length
-	}
 
 	let addWordsToFind = (words: string[]) => {
 		for (let word of words) {
@@ -360,7 +354,7 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 		return wordList
 	}
 
-	return { create, clear, getWordPath, setGridSize, getGrid, getInsertedWords, addWordToFind, addWordsToFind, getListOfWords, removeWordToFind, removeWordsToFind }
+	return { create, clear, getWordPath, getGrid, getInsertedWords, addWordToFind, addWordsToFind, getListOfWords, removeWordToFind, removeWordsToFind }
 }
 
 export default WordFind
