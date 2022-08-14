@@ -1,24 +1,5 @@
 import wordOccurrenciesJSON from "../data/word_occurrencies.json"
-
-interface Coordinates {
-	x: number
-	y: number
-	direction: Directions
-}
-
-interface Point {
-	x: number
-	y: number
-}
-
-interface WordFindOptions {
-	cols?: number
-	rows?: number
-	finalWordLength?: number
-	wordsToFind?: string[] //TODO: implementation
-	iterationLimit?: number
-	//TODO: add optional final phrase instead of final word length
-}
+import type { Point, Coordinates, WordFindOptions } from "./types"
 
 enum Directions {
 	RIGHT = "RIGHT",
@@ -225,14 +206,17 @@ var WordFind = (options?: WordFindOptions) => {
 		if (iterations > ITERATIONS_LIMIT) throw Error("Max number of Iterations")
 		const backtrackMatrixCopy = copyMatrix(grid)
 		const possibilites = shuffle(getPossibilities())
-		if (getEmptyCoordinates().length <= finalWordLength && getEmptyCoordinates().length >= 4) return true
+		console.log(`Empty coordinates: ${getEmptyCoordinates().length}`)
+		const emptyCoordinates = getEmptyCoordinates()
+		if (emptyCoordinates.length <= finalWordLength && emptyCoordinates.length >= 4) return true
 		for (let possibility of possibilites) {
 			const maxWordLength = getMaximumWordLength(possibility)
 			const { words, wordPath } = pickWord(maxWordLength, possibility)
 
 			for (let word of words) {
-				// console.log(`Inserted: ${getInsertedWords()}`)
-				// console.log(iterations)
+				console.log(`Inserted: ${getInsertedWords()}`)
+				console.log(iterations)
+				console.log(grid)
 				iterations++
 				grid = addWordToGrid(grid, word, possibility)
 				insertedWords.push({ word: word, wordPath: wordPath })
@@ -254,6 +238,8 @@ var WordFind = (options?: WordFindOptions) => {
 		//Validate rows and columns
 		if (!(4 <= rows && rows <= 11 && 4 <= cols && rows <= 11)) throw new Error("Rows and Columns must be within 4 and 11")
 		//TODO: Validate final word length
+		//TODO: Validate words and delete all words that cannot enter inside the grid
+		const maxLength = getDiagonal()
 	}
 
 	let areThereEnoughWordsToInsert = (): boolean => {
@@ -274,6 +260,7 @@ var WordFind = (options?: WordFindOptions) => {
 			return create()
 		}
 		if (!gridFilled) throw new Error("Not enough words to insert")
+		console.log("i'm here")
 		let { finalWord: calculatedFinalWord, finalWordPath: calculatedFinalWordPath } = insertLastWord()
 		finalWord = calculatedFinalWord
 		finalWordPath = calculatedFinalWordPath
@@ -360,7 +347,15 @@ var WordFind = (options?: WordFindOptions) => {
 		return wordList
 	}
 
-	return { create, clear, getWordPath, getGrid, getInsertedWords, addWordToFind, addWordsToFind, getListOfWords, removeWordToFind, removeWordsToFind }
+	let getDiagonal = (): number => {
+		return Math.sqrt(Math.pow(rows, 2) + Math.pow(cols, 2))
+	}
+
+	return { create, clear, getWordPath, getGrid, getInsertedWords, addWordToFind, addWordsToFind, getListOfWords, removeWordToFind, removeWordsToFind, Directions }
 }
+
+export { Directions }
+
+export type { Point, Coordinates, WordFindOptions }
 
 export default WordFind
