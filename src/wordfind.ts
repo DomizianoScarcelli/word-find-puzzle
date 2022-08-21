@@ -151,6 +151,7 @@ var WordFind = (options?: WordFindOptions) => {
 		if (!choices.has(JSON.stringify(coordinates))) choices.set(JSON.stringify(coordinates), new Map())
 		let wordRegex = choices.get(JSON.stringify(coordinates))
 		const visitedWords = wordRegex.has(regex) ? wordRegex.get(regex) : []
+		// console.log(`Wordlist: ${wordList.length}`)
 		const matchingWords: string[] = wordList.filter((word) => new RegExp(regex).test(word) && !getInsertedWords().includes(word) && !visitedWords.includes(word))
 		wordRegex.set(regex, [...visitedWords, ...matchingWords])
 		if (matchingWords.length === 0) return { words: [], wordPath: [] }
@@ -216,7 +217,6 @@ var WordFind = (options?: WordFindOptions) => {
 			for (let word of words) {
 				console.log(`Inserted: ${getInsertedWords()}`)
 				console.log(iterations)
-				console.log(grid)
 				iterations++
 				grid = addWordToGrid(grid, word, possibility)
 				insertedWords.push({ word: word, wordPath: wordPath })
@@ -236,7 +236,7 @@ var WordFind = (options?: WordFindOptions) => {
 
 	let validateOptions = (): void => {
 		//Validate rows and columns
-		if (!(4 <= rows && rows <= 11 && 4 <= cols && rows <= 11)) throw new Error("Rows and Columns must be within 4 and 11")
+		// if (!(4 <= rows && rows <= 11 && 4 <= cols && rows <= 11)) throw new Error("Rows and Columns must be within 4 and 11")
 		//TODO: Validate final word length
 		//TODO: Validate words and delete all words that cannot enter inside the grid
 		const maxLength = getDiagonal()
