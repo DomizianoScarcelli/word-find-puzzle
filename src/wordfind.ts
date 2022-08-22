@@ -150,8 +150,8 @@ var WordFind = (options?: WordFindOptions) => {
 		for (let { x, y } of wordPath) regex += grid[y][x] !== "" ? grid[y][x] : "."
 		if (!choices.has(JSON.stringify(coordinates))) choices.set(JSON.stringify(coordinates), new Map())
 		let wordRegex = choices.get(JSON.stringify(coordinates))
-		const visitedWords: Set<string> = wordRegex.has(regex) ? new Set(wordRegex.get(regex)) : new Set()
-		const matchingWords: string[] = wordList.filter((word) => new RegExp(regex).test(word) && !getInsertedWords().includes(word) && !visitedWords.has(word))
+		const visitedWords = wordRegex.has(regex) ? wordRegex.get(regex) : []
+		const matchingWords: string[] = wordList.filter((word) => new RegExp(regex).test(word) && !getInsertedWords().includes(word) && !visitedWords.includes(word))
 		wordRegex.set(regex, [...visitedWords, ...matchingWords])
 		if (matchingWords.length === 0) return { words: [], wordPath: [] }
 		return { words: shuffle(matchingWords), wordPath: wordPath }
