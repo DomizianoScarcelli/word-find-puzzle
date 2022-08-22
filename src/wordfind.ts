@@ -32,11 +32,11 @@ var WordFind = (options?: WordFindOptions) => {
 
 	let insertedWords: { word: string; wordPath: Point[] }[] = []
 
-	let choices: Map<String, Map<String, String[]>> = new Map()
+	let choices: Map<string, Map<string, string[]>> = new Map()
 
 	let iterations: number = 0
 
-	const ITERATIONS_LIMIT = options?.iterationLimit || Math.max(50, rows * cols)
+	const ITERATIONS_LIMIT = options?.iterationLimit || 30
 
 	let createWordOccurrenciesMap = (): Map<number, string[]> => {
 		let map: Map<number, string[]> = new Map()
@@ -150,9 +150,8 @@ var WordFind = (options?: WordFindOptions) => {
 		for (let { x, y } of wordPath) regex += grid[y][x] !== "" ? grid[y][x] : "."
 		if (!choices.has(JSON.stringify(coordinates))) choices.set(JSON.stringify(coordinates), new Map())
 		let wordRegex = choices.get(JSON.stringify(coordinates))
-		const visitedWords = wordRegex.has(regex) ? wordRegex.get(regex) : []
-		// console.log(`Wordlist: ${wordList.length}`)
-		const matchingWords: string[] = wordList.filter((word) => new RegExp(regex).test(word) && !getInsertedWords().includes(word) && !visitedWords.includes(word))
+		const visitedWords: Set<string> = wordRegex.has(regex) ? new Set(wordRegex.get(regex)) : new Set()
+		const matchingWords: string[] = wordList.filter((word) => new RegExp(regex).test(word) && !getInsertedWords().includes(word) && !visitedWords.has(word))
 		wordRegex.set(regex, [...visitedWords, ...matchingWords])
 		if (matchingWords.length === 0) return { words: [], wordPath: [] }
 		return { words: shuffle(matchingWords), wordPath: wordPath }
@@ -248,7 +247,7 @@ var WordFind = (options?: WordFindOptions) => {
 		return wordList.length === 0 ? false : cols * rows - wordList.map((elem) => elem.length).reduce((a, b) => a + b) <= finalWordLength
 	}
 
-	let create = (): { grid: string[][]; insertedWords: { word: string; wordPath: Point[] }[]; finalWord: string; finalWordPath: Point[] } => {
+	let create = (): { grid: string[][]; insertedWords: { word: string; wordPath: Point[] }[]; finalWord: string; finalWordPath: Point[]; iterations: number } => {
 		validityCheck()
 		let gridFilled = false
 		let finalWord = ""
@@ -265,7 +264,7 @@ var WordFind = (options?: WordFindOptions) => {
 		finalWord = calculatedFinalWord
 		finalWordPath = calculatedFinalWordPath
 
-		return { grid: grid, insertedWords: insertedWords, finalWord: finalWord, finalWordPath: finalWordPath }
+		return { grid: grid, insertedWords: insertedWords, finalWord: finalWord, finalWordPath: finalWordPath, iterations: iterations }
 	}
 
 	let clear = () => {
