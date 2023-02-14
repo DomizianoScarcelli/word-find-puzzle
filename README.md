@@ -1,8 +1,9 @@
 # Word search puzzle generator
 
-![Home]()
+![Home](https://github.com/DomizianoScarcelli/word-find-puzzle/blob/main/github_assets/home.png)
 
-Demo here: https://wordsearchgenerator.netlify.com/
+Click [HERE](https://wordsearchgenerator.netlify.app/) for the demo
+
 This simple Web App generates a word search puzzle from a list of the most common (not offensive) english words.
 
 The module that's used under the hood is defined in the src/WordSearch folder, and it's capable of getting custom words and custom settings, such as the number of rows and columns of the grid.
