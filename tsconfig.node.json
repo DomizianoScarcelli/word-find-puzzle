@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"plugins": [
+			{
+				"name": "typescript-styled-plugin",
+				"tags": ["styled", "css", "sty"]
+			}
+		],
+		"composite": true,
+		"module": "esnext",
+		"moduleResolution": "node"
+	},
+	"include": ["vite.config.ts"]
+}

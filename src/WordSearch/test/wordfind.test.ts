@@ -2,7 +2,7 @@ import WordFind from "../src/wordfind"
 
 const getNRandomWordsFromWordList = (N: number, wordList: string[]): string[] => {
 	let returnWords: string[] = []
-	
+
 	return returnWords
 }
 
@@ -41,6 +41,19 @@ describe("Puzzle creation", () => {
 			}
 		}
 	})
+	// test("Puzzle creation with custom size", () => {
+	// 	for (let i = 4; i < 20; i++) {
+	// 		const wordFind = WordFind({ rows: i, cols: i })
+	// 		const { grid, insertedWords } = wordFind.create()
+	// 		for (let { word, wordPath } of insertedWords) {
+	// 			let index = 0
+	// 			for (let { x, y } of wordPath) {
+	// 				expect(grid[y][x]).toBe(word[index])
+	// 				index++
+	// 			}
+	// 		}
+	// 	}
+	// })
 	test("The last word is inserted correctly", () => {
 		const wordFind = WordFind()
 		const { grid, finalWord, finalWordPath } = wordFind.create()
@@ -61,7 +74,10 @@ describe("Puzzle creation", () => {
 
 describe("Getters and setters", () => {
 	test("Get list of words to find", () => {
-		//TODO: define a method that clears the list of words to use in order to make this test
+		const wordFind = WordFind()
+		const allWords = wordFind.getListOfWords()
+		wordFind.removeWordsToFind(allWords)
+		expect(wordFind.getListOfWords().length === 0).toBeTruthy()
 	})
 	test("Add new words to find", () => {
 		const wordFind = WordFind()
@@ -103,5 +119,18 @@ describe("Getters and setters", () => {
 })
 
 describe("Testing edge cases", () => {
-	test("Grid without words to find", () => {})
+	test("Grid without words to find", () => {
+		const wordFind = WordFind()
+		const allWords = wordFind.getListOfWords()
+		wordFind.removeWordsToFind(allWords)
+		expect(() => wordFind.create()).toThrow(new Error("Not enough words to insert"))
+	})
+
+	test("Grid with not enough words to find", () => {
+		const wordFind = WordFind() //By default 8x8 grid, so 64 characters to occupy
+		const allWords = wordFind.getListOfWords()
+		wordFind.removeWordsToFind(allWords)
+		const words = ["magic", "smartphone", "andrew", "keyboard", "soon", "laptop"]
+		expect(() => wordFind.create()).toThrow(new Error("Not enough words to insert"))
+	})
 })

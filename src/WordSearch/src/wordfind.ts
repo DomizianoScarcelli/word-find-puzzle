@@ -1,15 +1,5 @@
-import * as wordOccurrenciesJSON from "../data/word_occurrencies.json"
-
-interface Coordinates {
-	x: number
-	y: number
-	direction: Directions
-}
-
-interface Point {
-	x: number
-	y: number
-}
+import wordOccurrenciesJSON from "../data/word_occurrencies.json"
+import type { Point, Coordinates, WordFindOptions } from "./types"
 
 enum Directions {
 	RIGHT = "RIGHT",
@@ -23,33 +13,30 @@ enum Directions {
 }
 /**
  *
- * @param settingsCols
- * @param settingsRows
- * @param settingsFinalWordLength
- * @param wordsToFind
+ * @param options
  * @returns
  */
-var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordLength?: number, wordsToFind?: string[]) => {
+var WordFind = (options?: WordFindOptions) => {
 	/**
 	 * Number of rows in the puzzle grid
 	 */
-	let rows: number = settingsRows || 8
+	let rows: number = options?.rows || 8
 	/**
 	 * Number of columns in the puzzle grid
 	 */
-	let cols: number = settingsCols || 8
+	let cols: number = options?.cols || 8
 	/**
 	 * The maximum length that the final word has to be
 	 */
-	let finalWordLength: number = settingsFinalWordLength || 8
+	let finalWordLength: number = options?.finalWordLength || 8
 
 	let insertedWords: { word: string; wordPath: Point[] }[] = []
 
-	let choices: Map<String, Map<String, String[]>> = new Map()
+	let choices: Map<string, Map<string, string[]>> = new Map()
 
 	let iterations: number = 0
 
-	const ITERATIONS_LIMIT = Math.max(50, rows * cols)
+	const ITERATIONS_LIMIT = options?.iterationLimit || 30
 
 	let createWordOccurrenciesMap = (): Map<number, string[]> => {
 		let map: Map<number, string[]> = new Map()
@@ -164,9 +151,7 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 		if (!choices.has(JSON.stringify(coordinates))) choices.set(JSON.stringify(coordinates), new Map())
 		let wordRegex = choices.get(JSON.stringify(coordinates))
 		const visitedWords = wordRegex.has(regex) ? wordRegex.get(regex) : []
-		const matchingWords: string[] = wordList.filter(
-			(word) => new RegExp(regex).test(word) && !insertedWords.map((elem) => JSON.stringify(elem)).includes(JSON.stringify({ word: word, wordPath: wordPath })) && !visitedWords.includes(word)
-		)
+		const matchingWords: string[] = wordList.filter((word) => new RegExp(regex).test(word) && !getInsertedWords().includes(word) && !visitedWords.includes(word))
 		wordRegex.set(regex, [...visitedWords, ...matchingWords])
 		if (matchingWords.length === 0) return { words: [], wordPath: [] }
 		return { words: shuffle(matchingWords), wordPath: wordPath }
@@ -221,13 +206,15 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 		if (iterations > ITERATIONS_LIMIT) throw Error("Max number of Iterations")
 		const backtrackMatrixCopy = copyMatrix(grid)
 		const possibilites = shuffle(getPossibilities())
-		if (getEmptyCoordinates().length <= finalWordLength && getEmptyCoordinates().length >= 4) return true
+		console.log(`Empty coordinates: ${getEmptyCoordinates().length}`)
+		const emptyCoordinates = getEmptyCoordinates()
+		if (emptyCoordinates.length <= finalWordLength && emptyCoordinates.length >= 4) return true
 		for (let possibility of possibilites) {
 			const maxWordLength = getMaximumWordLength(possibility)
 			const { words, wordPath } = pickWord(maxWordLength, possibility)
 
 			for (let word of words) {
-				console.log(`Inserted: ${insertedWords}`)
+				console.log(`Inserted: ${getInsertedWords()}`)
 				console.log(iterations)
 				iterations++
 				grid = addWordToGrid(grid, word, possibility)
@@ -240,15 +227,44 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 		return false
 	}
 
-	let create = (): { grid: string[][]; insertedWords: { word: string; wordPath: Point[] }[]; finalWord: string; finalWordPath: Point[] } => {
+	let validityCheck = (): void => {
+		// TODO: Remove all the words that don't fit inside the grid
+		validateOptions()
+		if (!areThereEnoughWordsToInsert()) throw new Error("Not enough words to insert")
+	}
+
+	let validateOptions = (): void => {
+		//Validate rows and columns
+		// if (!(4 <= rows && rows <= 11 && 4 <= cols && rows <= 11)) throw new Error("Rows and Columns must be within 4 and 11")
+		//TODO: Validate final word length
+		//TODO: Validate words and delete all words that cannot enter inside the grid
+		const maxLength = getDiagonal()
+	}
+
+	let areThereEnoughWordsToInsert = (): boolean => {
+		// Enough IFF Number of cells - Number of letters in all the words <= Maximum length of final word
+		const wordList = getListOfWords()
+		return wordList.length === 0 ? false : cols * rows - wordList.map((elem) => elem.length).reduce((a, b) => a + b) <= finalWordLength
+	}
+
+	let create = (): { grid: string[][]; insertedWords: { word: string; wordPath: Point[] }[]; finalWord: string; finalWordPath: Point[]; iterations: number } => {
+		validityCheck()
+		let gridFilled = false
+		let finalWord = ""
+		let finalWordPath = []
 		try {
-			fillGrid()
+			gridFilled = fillGrid()
 		} catch {
 			clear()
 			return create()
 		}
-		let { finalWord, finalWordPath } = insertLastWord()
-		return { grid: grid, insertedWords: insertedWords, finalWord: finalWord, finalWordPath: finalWordPath }
+		if (!gridFilled) throw new Error("Not enough words to insert")
+		console.log("i'm here")
+		let { finalWord: calculatedFinalWord, finalWordPath: calculatedFinalWordPath } = insertLastWord()
+		finalWord = calculatedFinalWord
+		finalWordPath = calculatedFinalWordPath
+
+		return { grid: grid, insertedWords: insertedWords, finalWord: finalWord, finalWordPath: finalWordPath, iterations: iterations }
 	}
 
 	let clear = () => {
@@ -260,8 +276,11 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 
 	let insertLastWord = (): { finalWord: string; finalWordPath: Point[] } => {
 		const emptyCoordinates: Point[] = getEmptyCoordinates()
-		const finalWordArray: string[] = wordOccurrencies.get(emptyCoordinates.length) //TODO: mi ritorna undefined
-		//TODO: if a final words doesn't exist, backtrack
+		const finalWordArray: string[] = wordOccurrencies.get(emptyCoordinates.length)
+		if (finalWordArray.length === 0 && finalWordLength !== 0) {
+			throw new Error("Cannot find a final word")
+			//TODO: if a final words doesn't exist, backtrack
+		}
 		const finalWord: string = finalWordArray[Math.floor(Math.random() * finalWordArray.length)]
 		for (let i = 0; i < finalWord.length; i++) {
 			const { x, y } = emptyCoordinates[i]
@@ -271,17 +290,6 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 	}
 
 	//-------- Modify Settings ---------
-
-	let setGridSize = (newRows: number, newCols: number) => {
-		rows = newRows
-		cols = newCols
-	}
-
-	let setFinalWord = (word: string) => {}
-
-	let setMaximumFinalWordLength = (length: number) => {
-		finalWordLength = length
-	}
 
 	let addWordsToFind = (words: string[]) => {
 		for (let word of words) {
@@ -332,18 +340,21 @@ var WordFind = (settingsCols?: number, settingsRows?: number, settingsFinalWordL
 
 	let getListOfWords = (): string[] => {
 		let wordList = []
-		for (let elem of wordOccurrencies) wordList = wordList.concat(wordOccurrencies.get(elem[0]))
+		for (let elem of wordOccurrencies) {
+			wordList = wordList.concat(wordOccurrencies.get(elem[0]))
+		}
 		return wordList
 	}
 
-	//---- TODO: Sperimental stuff -----
-	let canGeneratePuzzle = (): boolean => {
-		// Remove all the words that don't fit inside the grid
-		// If there isn't a sum of the words that satisfies (sum - col - rows <= finalWordLength), return false
-		// 
-		return false
+	let getDiagonal = (): number => {
+		return Math.sqrt(Math.pow(rows, 2) + Math.pow(cols, 2))
 	}
-	return { create, clear, getWordPath, setGridSize, getGrid, getInsertedWords, addWordToFind, addWordsToFind, getListOfWords, removeWordToFind, removeWordsToFind }
+
+	return { create, clear, getWordPath, getGrid, getInsertedWords, addWordToFind, addWordsToFind, getListOfWords, removeWordToFind, removeWordsToFind, Directions }
 }
+
+export { Directions }
+
+export type { Point, Coordinates, WordFindOptions }
 
 export default WordFind

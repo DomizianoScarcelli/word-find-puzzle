@@ -1,4 +1,3 @@
-import words from "./words.js"
 // Global state
 let mouseDown = false
 document.body.onmousedown = () => {
@@ -21,35 +20,35 @@ function createPuzzle() {
 }
 
 function createWordGrid() {
-	const rows = 10
-	const columns = 10
-	//Initialize and fill up the grid with ""
-	let grid = []
-	for (let i = 0; i < rows; i++) {
-		grid.push(new Array(columns).fill(""))
-	}
-	let spazioDisponibile = new Map()
-	for (let row = 0; row < rows; row++) {
-		spazioDisponibile.set(row, columns)
-	}
-	// while (wordList.length < 10) {
-	// 	const randomNumber = Math.floor(Math.random() * words.length)
-	// 	const word = words[randomNumber]
-	// 	console.log(word)
-	// 	if (!wordList.includes(word)) wordList.push(word)
+	// const rows = 10
+	// const columns = 10
+	// //Initialize and fill up the grid with ""
+	// let grid = []
+	// for (let i = 0; i < rows; i++) {
+	// 	grid.push(new Array(columns).fill(""))
 	// }
-	for (let _ of [1, 2, 3, 4, 5, 6, 7, 8]) {
-		let i = 0
-		if (spazioDisponibile.get(i) > 1) {
-			const randomLength = Math.floor(Math.random() * columns - 1)
-			const wordsOfThatLength = words[3]
-			const randomWordIndex = Math.floor(Math.random() * wordsOfThatLength.length)
-			const randomWord = wordsOfThatLength[randomWordIndex]
+	// let spazioDisponibile = new Map()
+	// for (let row = 0; row < rows; row++) {
+	// 	spazioDisponibile.set(row, columns)
+	// }
+	// // while (wordList.length < 10) {
+	// // 	const randomNumber = Math.floor(Math.random() * words.length)
+	// // 	const word = words[randomNumber]
+	// // 	console.log(word)
+	// // 	if (!wordList.includes(word)) wordList.push(word)
+	// // }
+	// for (let _ of [1, 2, 3, 4, 5, 6, 7, 8]) {
+	// 	let i = 0
+	// 	if (spazioDisponibile.get(i) > 1) {
+	// 		const randomLength = Math.floor(Math.random() * columns - 1)
+	// 		const wordsOfThatLength = words[3]
+	// 		const randomWordIndex = Math.floor(Math.random() * wordsOfThatLength.length)
+	// 		const randomWord = wordsOfThatLength[randomWordIndex]
 
-			console.log(randomWord)
-		}
-	}
-	console.log(spazioDisponibile)
+	// 		console.log(randomWord)
+	// 	}
+	// }
+	// console.log(spazioDisponibile)
 	return [
 		["", "", "", "", "", "", "", "", ""],
 		["A", "A", "A", "A", "A", "A", "A", "A", "A"],
