@@ -2,7 +2,6 @@
 
 ![Home](https://github.com/DomizianoScarcelli/word-find-puzzle/blob/main/github_assets/home.png)
 
-Click [HERE](https://wordsearchgenerator.netlify.app/) for the demo
 
 This simple Web App generates a word search puzzle from a list of the most common (not offensive) english words.
 
