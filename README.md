@@ -1,6 +1,10 @@
 # Word search puzzle generator
 
-![Home](https://github.com/DomizianoScarcelli/word-find-puzzle/blob/main/github_assets/home.png)
+
+
+https://user-images.githubusercontent.com/44399141/224265727-41d19e1a-6df4-4d61-a8b5-e0bbf369e6f3.mov
+
+
 
 
 This simple Web App generates a word search puzzle from a list of the most common (not offensive) english words.
